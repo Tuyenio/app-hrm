@@ -84,31 +84,21 @@ class _LoginScreenState extends State<LoginScreen> {
     return Column(
       children: [
         Container(
-          width: 72,
-          height: 72,
+          width: 84,
+          height: 84,
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF1A73E8), Color(0xFF4FC3F7)],
-            ),
-            borderRadius: BorderRadius.circular(18),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(22),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primaryLight.withValues(alpha: 0.4),
+                color: Colors.black.withValues(alpha: 0.2),
                 blurRadius: 20,
-                spreadRadius: 2,
+                spreadRadius: 1,
               ),
             ],
           ),
-          child: const Center(
-            child: Text(
-              'H',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 36,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
+          padding: const EdgeInsets.all(8),
+          child: Image.asset('assets/branding/logo.png', fit: BoxFit.contain),
         ),
         const SizedBox(height: 16),
         Text(

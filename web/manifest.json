@@ -1,11 +1,11 @@
 {
-    "name": "app_hrm",
-    "short_name": "app_hrm",
+    "name": "HRM Pro - Enterprise Suite",
+    "short_name": "HRM Pro",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#0E2A4A",
+    "theme_color": "#0E2A4A",
+    "description": "HRM Pro - Enterprise Suite",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

@@ -30,7 +30,124 @@ class HrmApp extends StatelessWidget {
       title: 'HRM Pro - Enterprise Suite',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const AuthWrapper(),
+      home: const SplashGate(),
+    );
+  }
+}
+
+/// ============================================================================
+/// SPLASH GATE - Đồng bộ launch/splash screen với logo mới
+/// ============================================================================
+class SplashGate extends StatefulWidget {
+  const SplashGate({super.key});
+
+  @override
+  State<SplashGate> createState() => _SplashGateState();
+}
+
+class _SplashGateState extends State<SplashGate> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(milliseconds: 1400), () {
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const AuthWrapper()),
+        );
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF060D18), Color(0xFF0A1F39), Color(0xFF1A73E8)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              top: -90,
+              right: -70,
+              child: Container(
+                width: 240,
+                height: 240,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFF5FCBFF).withValues(alpha: 0.16),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: -120,
+              left: -80,
+              child: Container(
+                width: 300,
+                height: 300,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFF1A73E8).withValues(alpha: 0.14),
+                ),
+              ),
+            ),
+            Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 122,
+                    height: 122,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(32),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.22),
+                          blurRadius: 36,
+                          offset: const Offset(0, 16),
+                        ),
+                        BoxShadow(
+                          color: const Color(0xFF5FCBFF).withValues(alpha: 0.28),
+                          blurRadius: 44,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                    ),
+                    child: Image.asset(
+                      'assets/branding/logo.png',
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  const SizedBox(height: 22),
+                  Text(
+                    'ICS HRM',
+                    style: AppTextStyles.headlineLarge.copyWith(
+                      color: Colors.white,
+                      fontSize: 30,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Enterprise Human Resource Management',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: Colors.white70,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -51,7 +168,9 @@ class _AuthWrapperState extends State<AuthWrapper> {
   @override
   Widget build(BuildContext context) {
     if (!_isLoggedIn) {
-      return LoginScreen(onLoginSuccess: () => setState(() => _isLoggedIn = true));
+      return LoginScreen(
+        onLoginSuccess: () => setState(() => _isLoggedIn = true),
+      );
     }
     return MainShell(onLogout: () => setState(() => _isLoggedIn = false));
   }
@@ -76,13 +195,13 @@ class _MainShellState extends State<MainShell> {
 
   // 7 screens tương ứng navigation
   static const List<Widget> _screens = [
-    DashboardScreen(),      // 0: Dashboard
-    TaskWorkspaceScreen(),  // 1: Dự án & Công việc
+    DashboardScreen(), // 0: Dashboard
+    TaskWorkspaceScreen(), // 1: Dự án & Công việc
     SecurityMatrixScreen(), // 2: Phân quyền
-    EmployeeListScreen(),   // 3: Nhân sự
-    PerformanceScreen(),    // 4: Hiệu suất
-    EssHomeScreen(),        // 5: Cổng NV (ESS)
-    ChatListScreen(),       // 6: Chat
+    EmployeeListScreen(), // 3: Nhân sự
+    PerformanceScreen(), // 4: Hiệu suất
+    EssHomeScreen(), // 5: Cổng NV (ESS)
+    ChatListScreen(), // 6: Chat
   ];
 
   @override
@@ -121,16 +240,23 @@ class _MainShellState extends State<MainShell> {
           // Logo Header
           Container(
             height: 64,
-            padding: EdgeInsets.symmetric(horizontal: _sidebarCollapsed ? 16 : 20),
+            padding: EdgeInsets.symmetric(
+              horizontal: _sidebarCollapsed ? 16 : 20,
+            ),
             child: Row(
               children: [
                 Container(
-                  width: 36, height: 36,
+                  width: 36,
+                  height: 36,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(colors: [AppColors.primaryLight, AppColors.primary]),
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Center(child: Text('H', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 18))),
+                  padding: const EdgeInsets.all(4),
+                  child: Image.asset(
+                    'assets/branding/logo.png',
+                    fit: BoxFit.contain,
+                  ),
                 ),
                 if (!_sidebarCollapsed) ...[
                   const SizedBox(width: 12),
@@ -139,16 +265,33 @@ class _MainShellState extends State<MainShell> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('HRM Pro', style: AppTextStyles.titleLarge.copyWith(color: Colors.white, fontSize: 17)),
-                        Text('Enterprise Suite', style: AppTextStyles.labelSmall.copyWith(color: AppColors.sidebarText, fontSize: 10)),
+                        Text(
+                          'HRM Pro',
+                          style: AppTextStyles.titleLarge.copyWith(
+                            color: Colors.white,
+                            fontSize: 17,
+                          ),
+                        ),
+                        Text(
+                          'Enterprise Suite',
+                          style: AppTextStyles.labelSmall.copyWith(
+                            color: AppColors.sidebarText,
+                            fontSize: 10,
+                          ),
+                        ),
                       ],
                     ),
                   ),
                   InkWell(
-                    onTap: () => setState(() => _sidebarCollapsed = !_sidebarCollapsed),
+                    onTap: () =>
+                        setState(() => _sidebarCollapsed = !_sidebarCollapsed),
                     child: Padding(
                       padding: const EdgeInsets.all(4),
-                      child: Icon(Icons.menu_open_rounded, color: AppColors.sidebarText, size: 20),
+                      child: Icon(
+                        Icons.menu_open_rounded,
+                        color: AppColors.sidebarText,
+                        size: 20,
+                      ),
                     ),
                   ),
                 ],
@@ -160,10 +303,19 @@ class _MainShellState extends State<MainShell> {
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              children: List.generate(_navItems.length, (i) => _buildSideNavItem(i)),
+              children: List.generate(
+                _navItems.length,
+                (i) => _buildSideNavItem(i),
+              ),
             ),
           ),
-          Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: Divider(color: AppColors.sidebarDivider.withValues(alpha: 0.5), height: 1)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Divider(
+              color: AppColors.sidebarDivider.withValues(alpha: 0.5),
+              height: 1,
+            ),
+          ),
           // Logout button
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -173,13 +325,27 @@ class _MainShellState extends State<MainShell> {
                 onTap: widget.onLogout,
                 borderRadius: BorderRadius.circular(10),
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: _sidebarCollapsed ? 12 : 14, vertical: 11),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: _sidebarCollapsed ? 12 : 14,
+                    vertical: 11,
+                  ),
                   child: Row(
                     children: [
-                      const Icon(Icons.logout_rounded, color: AppColors.error, size: 20),
+                      const Icon(
+                        Icons.logout_rounded,
+                        color: AppColors.error,
+                        size: 20,
+                      ),
                       if (!_sidebarCollapsed) ...[
                         const SizedBox(width: 14),
-                        Expanded(child: Text('Đăng xuất', style: AppTextStyles.titleSmall.copyWith(color: AppColors.error))),
+                        Expanded(
+                          child: Text(
+                            'Đăng xuất',
+                            style: AppTextStyles.titleSmall.copyWith(
+                              color: AppColors.error,
+                            ),
+                          ),
+                        ),
                       ],
                     ],
                   ),
@@ -206,23 +372,57 @@ class _MainShellState extends State<MainShell> {
           borderRadius: BorderRadius.circular(10),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            padding: EdgeInsets.symmetric(horizontal: _sidebarCollapsed ? 12 : 14, vertical: 11),
+            padding: EdgeInsets.symmetric(
+              horizontal: _sidebarCollapsed ? 12 : 14,
+              vertical: 11,
+            ),
             decoration: BoxDecoration(
-              color: isSelected ? AppColors.sidebarItemActive : Colors.transparent,
+              color: isSelected
+                  ? AppColors.sidebarItemActive
+                  : Colors.transparent,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
               children: [
-                Icon(isSelected ? item.activeIcon : item.icon, color: isSelected ? Colors.white : AppColors.sidebarText, size: 22),
+                Icon(
+                  isSelected ? item.activeIcon : item.icon,
+                  color: isSelected ? Colors.white : AppColors.sidebarText,
+                  size: 22,
+                ),
                 if (!_sidebarCollapsed) ...[
                   const SizedBox(width: 14),
-                  Expanded(child: Text(item.label, style: AppTextStyles.titleSmall.copyWith(color: isSelected ? Colors.white : AppColors.sidebarText, fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400), overflow: TextOverflow.ellipsis)),
+                  Expanded(
+                    child: Text(
+                      item.label,
+                      style: AppTextStyles.titleSmall.copyWith(
+                        color: isSelected
+                            ? Colors.white
+                            : AppColors.sidebarText,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w400,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                   // Badge cho Chat
                   if (index == 6)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                      decoration: BoxDecoration(color: AppColors.error, borderRadius: BorderRadius.circular(10)),
-                      child: Text('4', style: AppTextStyles.labelSmall.copyWith(color: Colors.white, fontSize: 10)),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 7,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.error,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        '4',
+                        style: AppTextStyles.labelSmall.copyWith(
+                          color: Colors.white,
+                          fontSize: 10,
+                        ),
+                      ),
                     ),
                 ],
               ],
@@ -247,7 +447,13 @@ class _MainShellState extends State<MainShell> {
       decoration: BoxDecoration(
         color: AppColors.surface,
         border: Border(top: BorderSide(color: AppColors.divider)),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -2))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
+        ],
       ),
       child: SafeArea(
         child: Padding(
@@ -257,7 +463,13 @@ class _MainShellState extends State<MainShell> {
             children: [
               ...mobileItems.map((item) {
                 final isSelected = _selectedIndex == item.$1;
-                return _buildBottomNavItem(item.$1, isSelected ? item.$3 : item.$2, item.$4, isSelected, item.$1 == 6);
+                return _buildBottomNavItem(
+                  item.$1,
+                  isSelected ? item.$3 : item.$2,
+                  item.$4,
+                  isSelected,
+                  item.$1 == 6,
+                );
               }),
               // More button
               _buildMoreButton(),
@@ -268,7 +480,13 @@ class _MainShellState extends State<MainShell> {
     );
   }
 
-  Widget _buildBottomNavItem(int index, IconData icon, String label, bool isSelected, bool showBadge) {
+  Widget _buildBottomNavItem(
+    int index,
+    IconData icon,
+    String label,
+    bool isSelected,
+    bool showBadge,
+  ) {
     return InkWell(
       onTap: () => setState(() => _selectedIndex = index),
       borderRadius: BorderRadius.circular(12),
@@ -284,17 +502,48 @@ class _MainShellState extends State<MainShell> {
           children: [
             Stack(
               children: [
-                Icon(icon, size: 22, color: isSelected ? AppColors.primary : AppColors.textTertiary),
+                Icon(
+                  icon,
+                  size: 22,
+                  color: isSelected
+                      ? AppColors.primary
+                      : AppColors.textTertiary,
+                ),
                 if (showBadge)
-                  Positioned(right: -4, top: -2, child: Container(
-                    padding: const EdgeInsets.all(3),
-                    decoration: BoxDecoration(color: AppColors.error, shape: BoxShape.circle, border: Border.all(color: AppColors.surface, width: 1.5)),
-                    child: const Text('4', style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w700)),
-                  )),
+                  Positioned(
+                    right: -4,
+                    top: -2,
+                    child: Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        color: AppColors.error,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: AppColors.surface,
+                          width: 1.5,
+                        ),
+                      ),
+                      child: const Text(
+                        '4',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 8,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
             const SizedBox(height: 2),
-            Text(label, style: AppTextStyles.labelSmall.copyWith(color: isSelected ? AppColors.primary : AppColors.textTertiary, fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400, fontSize: 10)),
+            Text(
+              label,
+              style: AppTextStyles.labelSmall.copyWith(
+                color: isSelected ? AppColors.primary : AppColors.textTertiary,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                fontSize: 10,
+              ),
+            ),
           ],
         ),
       ),
@@ -302,7 +551,8 @@ class _MainShellState extends State<MainShell> {
   }
 
   Widget _buildMoreButton() {
-    final isMoreSelected = _selectedIndex == 2 || _selectedIndex == 3 || _selectedIndex == 4;
+    final isMoreSelected =
+        _selectedIndex == 2 || _selectedIndex == 3 || _selectedIndex == 4;
     return InkWell(
       onTap: () => _showMoreMenu(),
       borderRadius: BorderRadius.circular(12),
@@ -316,9 +566,24 @@ class _MainShellState extends State<MainShell> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.more_horiz_rounded, size: 22, color: isMoreSelected ? AppColors.primary : AppColors.textTertiary),
+            Icon(
+              Icons.more_horiz_rounded,
+              size: 22,
+              color: isMoreSelected
+                  ? AppColors.primary
+                  : AppColors.textTertiary,
+            ),
             const SizedBox(height: 2),
-            Text('Thêm', style: AppTextStyles.labelSmall.copyWith(color: isMoreSelected ? AppColors.primary : AppColors.textTertiary, fontWeight: isMoreSelected ? FontWeight.w600 : FontWeight.w400, fontSize: 10)),
+            Text(
+              'Thêm',
+              style: AppTextStyles.labelSmall.copyWith(
+                color: isMoreSelected
+                    ? AppColors.primary
+                    : AppColors.textTertiary,
+                fontWeight: isMoreSelected ? FontWeight.w600 : FontWeight.w400,
+                fontSize: 10,
+              ),
+            ),
           ],
         ),
       ),
@@ -329,59 +594,152 @@ class _MainShellState extends State<MainShell> {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (context) => Container(
         padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(2)))),
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.divider,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
             const SizedBox(height: 16),
-            Text('Quản trị', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18)),
+            Text(
+              'Quản trị',
+              style: AppTextStyles.headlineSmall.copyWith(fontSize: 18),
+            ),
             const SizedBox(height: 12),
-            _moreMenuItem(2, Icons.admin_panel_settings_rounded, 'Phân quyền', 'Ma trận quyền hệ thống'),
-            _moreMenuItem(3, Icons.people_rounded, 'Nhân sự', 'Quản lý hồ sơ nhân viên'),
-            _moreMenuItem(4, Icons.assessment_rounded, 'Hiệu suất', 'KPIs, OKRs & đánh giá'),
+            _moreMenuItem(
+              2,
+              Icons.admin_panel_settings_rounded,
+              'Phân quyền',
+              'Ma trận quyền hệ thống',
+            ),
+            _moreMenuItem(
+              3,
+              Icons.people_rounded,
+              'Nhân sự',
+              'Quản lý hồ sơ nhân viên',
+            ),
+            _moreMenuItem(
+              4,
+              Icons.assessment_rounded,
+              'Hiệu suất',
+              'KPIs, OKRs & đánh giá',
+            ),
             const Divider(height: 20),
-            _moreMenuItem(-1, Icons.logout_rounded, 'Đăng xuất', 'Thoát khỏi hệ thống', color: AppColors.error, onTap: () {
-              Navigator.pop(context);
-              widget.onLogout();
-            }),
+            _moreMenuItem(
+              -1,
+              Icons.logout_rounded,
+              'Đăng xuất',
+              'Thoát khỏi hệ thống',
+              color: AppColors.error,
+              onTap: () {
+                Navigator.pop(context);
+                widget.onLogout();
+              },
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _moreMenuItem(int index, IconData icon, String label, String sub, {Color? color, VoidCallback? onTap}) {
+  Widget _moreMenuItem(
+    int index,
+    IconData icon,
+    String label,
+    String sub, {
+    Color? color,
+    VoidCallback? onTap,
+  }) {
     final isSelected = index == _selectedIndex;
     return ListTile(
       leading: Container(
         padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(color: (color ?? AppColors.primary).withValues(alpha: 0.08), borderRadius: BorderRadius.circular(10)),
-        child: Icon(icon, size: 20, color: color ?? (isSelected ? AppColors.primary : AppColors.textSecondary)),
+        decoration: BoxDecoration(
+          color: (color ?? AppColors.primary).withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(
+          icon,
+          size: 20,
+          color:
+              color ??
+              (isSelected ? AppColors.primary : AppColors.textSecondary),
+        ),
       ),
-      title: Text(label, style: AppTextStyles.titleSmall.copyWith(fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500, color: color)),
-      subtitle: Text(sub, style: AppTextStyles.bodySmall.copyWith(fontSize: 11)),
-      trailing: isSelected ? const Icon(Icons.check_rounded, color: AppColors.primary, size: 20) : null,
+      title: Text(
+        label,
+        style: AppTextStyles.titleSmall.copyWith(
+          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+          color: color,
+        ),
+      ),
+      subtitle: Text(
+        sub,
+        style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
+      ),
+      trailing: isSelected
+          ? const Icon(Icons.check_rounded, color: AppColors.primary, size: 20)
+          : null,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       tileColor: isSelected ? AppColors.primarySurface : null,
-      onTap: onTap ?? () {
-        setState(() => _selectedIndex = index);
-        Navigator.pop(context);
-      },
+      onTap:
+          onTap ??
+          () {
+            setState(() => _selectedIndex = index);
+            Navigator.pop(context);
+          },
     );
   }
 
   /// Nav items cho cả sidebar và bottom nav
   static const List<NavItem> _navItems = [
-    NavItem(label: 'Dashboard', icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard_rounded),
-    NavItem(label: 'Dự án & Công việc', icon: Icons.task_alt_outlined, activeIcon: Icons.task_alt_rounded),
-    NavItem(label: 'Phân quyền', icon: Icons.admin_panel_settings_outlined, activeIcon: Icons.admin_panel_settings_rounded),
-    NavItem(label: 'Nhân sự', icon: Icons.people_outline_rounded, activeIcon: Icons.people_rounded),
-    NavItem(label: 'Hiệu suất', icon: Icons.assessment_outlined, activeIcon: Icons.assessment_rounded),
-    NavItem(label: 'Cổng NV (ESS)', icon: Icons.person_outline_rounded, activeIcon: Icons.person_rounded),
-    NavItem(label: 'Chat', icon: Icons.chat_bubble_outline_rounded, activeIcon: Icons.chat_bubble_rounded),
+    NavItem(
+      label: 'Dashboard',
+      icon: Icons.dashboard_outlined,
+      activeIcon: Icons.dashboard_rounded,
+    ),
+    NavItem(
+      label: 'Dự án & Công việc',
+      icon: Icons.task_alt_outlined,
+      activeIcon: Icons.task_alt_rounded,
+    ),
+    NavItem(
+      label: 'Phân quyền',
+      icon: Icons.admin_panel_settings_outlined,
+      activeIcon: Icons.admin_panel_settings_rounded,
+    ),
+    NavItem(
+      label: 'Nhân sự',
+      icon: Icons.people_outline_rounded,
+      activeIcon: Icons.people_rounded,
+    ),
+    NavItem(
+      label: 'Hiệu suất',
+      icon: Icons.assessment_outlined,
+      activeIcon: Icons.assessment_rounded,
+    ),
+    NavItem(
+      label: 'Cổng NV (ESS)',
+      icon: Icons.person_outline_rounded,
+      activeIcon: Icons.person_rounded,
+    ),
+    NavItem(
+      label: 'Chat',
+      icon: Icons.chat_bubble_outline_rounded,
+      activeIcon: Icons.chat_bubble_rounded,
+    ),
   ];
 }

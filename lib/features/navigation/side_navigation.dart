@@ -13,7 +13,11 @@ class NavItem {
   final IconData icon;
   final IconData activeIcon;
 
-  const NavItem({required this.label, required this.icon, required this.activeIcon});
+  const NavItem({
+    required this.label,
+    required this.icon,
+    required this.activeIcon,
+  });
 }
 
 class SideNavigation extends StatelessWidget {
@@ -31,11 +35,31 @@ class SideNavigation extends StatelessWidget {
   });
 
   static const List<NavItem> items = [
-    NavItem(label: 'Dashboard', icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard_rounded),
-    NavItem(label: 'Dự án & Công việc', icon: Icons.task_alt_outlined, activeIcon: Icons.task_alt_rounded),
-    NavItem(label: 'Phân quyền', icon: Icons.admin_panel_settings_outlined, activeIcon: Icons.admin_panel_settings_rounded),
-    NavItem(label: 'Nhân viên', icon: Icons.person_outline_rounded, activeIcon: Icons.person_rounded),
-    NavItem(label: 'Chat', icon: Icons.chat_bubble_outline_rounded, activeIcon: Icons.chat_bubble_rounded),
+    NavItem(
+      label: 'Dashboard',
+      icon: Icons.dashboard_outlined,
+      activeIcon: Icons.dashboard_rounded,
+    ),
+    NavItem(
+      label: 'Dự án & Công việc',
+      icon: Icons.task_alt_outlined,
+      activeIcon: Icons.task_alt_rounded,
+    ),
+    NavItem(
+      label: 'Phân quyền',
+      icon: Icons.admin_panel_settings_outlined,
+      activeIcon: Icons.admin_panel_settings_rounded,
+    ),
+    NavItem(
+      label: 'Nhân viên',
+      icon: Icons.person_outline_rounded,
+      activeIcon: Icons.person_rounded,
+    ),
+    NavItem(
+      label: 'Chat',
+      icon: Icons.chat_bubble_outline_rounded,
+      activeIcon: Icons.chat_bubble_rounded,
+    ),
   ];
 
   @override
@@ -44,9 +68,7 @@ class SideNavigation extends StatelessWidget {
       duration: const Duration(milliseconds: 250),
       curve: Curves.easeInOut,
       width: isCollapsed ? 72 : 260,
-      decoration: const BoxDecoration(
-        color: AppColors.sidebarBg,
-      ),
+      decoration: const BoxDecoration(color: AppColors.sidebarBg),
       child: Column(
         children: [
           // ── Logo/Brand Header ───────────────────────────────────────
@@ -63,7 +85,10 @@ class SideNavigation extends StatelessWidget {
           // ── Divider ─────────────────────────────────────────────────
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Divider(color: AppColors.sidebarDivider.withValues(alpha: 0.5), height: 1),
+            child: Divider(
+              color: AppColors.sidebarDivider.withValues(alpha: 0.5),
+              height: 1,
+            ),
           ),
           // ── User Profile ────────────────────────────────────────────
           _buildUserProfile(),
@@ -81,18 +106,14 @@ class SideNavigation extends StatelessWidget {
         children: [
           // Logo icon
           Container(
-            width: 36, height: 36,
+            width: 32,
+            height: 32,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [AppColors.primaryLight, AppColors.primary],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(10),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(9),
             ),
-            child: const Center(
-              child: Text('H', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 18)),
-            ),
+            padding: const EdgeInsets.all(3),
+            child: Image.asset('assets/branding/logo.png', fit: BoxFit.contain),
           ),
           if (!isCollapsed) ...[
             const SizedBox(width: 12),
@@ -101,8 +122,20 @@ class SideNavigation extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('HRM Pro', style: AppTextStyles.titleLarge.copyWith(color: Colors.white, fontSize: 17)),
-                  Text('Enterprise Suite', style: AppTextStyles.labelSmall.copyWith(color: AppColors.sidebarText, fontSize: 10)),
+                  Text(
+                    'HRM Pro',
+                    style: AppTextStyles.titleLarge.copyWith(
+                      color: Colors.white,
+                      fontSize: 17,
+                    ),
+                  ),
+                  Text(
+                    'Enterprise Suite',
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: AppColors.sidebarText,
+                      fontSize: 10,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -113,7 +146,11 @@ class SideNavigation extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               child: Padding(
                 padding: const EdgeInsets.all(4),
-                child: Icon(Icons.menu_open_rounded, color: AppColors.sidebarText, size: 20),
+                child: Icon(
+                  Icons.menu_open_rounded,
+                  color: AppColors.sidebarText,
+                  size: 20,
+                ),
               ),
             ),
         ],
@@ -134,9 +171,14 @@ class SideNavigation extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            padding: EdgeInsets.symmetric(horizontal: isCollapsed ? 12 : 14, vertical: 11),
+            padding: EdgeInsets.symmetric(
+              horizontal: isCollapsed ? 12 : 14,
+              vertical: 11,
+            ),
             decoration: BoxDecoration(
-              color: isSelected ? AppColors.sidebarItemActive : Colors.transparent,
+              color: isSelected
+                  ? AppColors.sidebarItemActive
+                  : Colors.transparent,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
@@ -152,8 +194,12 @@ class SideNavigation extends StatelessWidget {
                     child: Text(
                       item.label,
                       style: AppTextStyles.titleSmall.copyWith(
-                        color: isSelected ? Colors.white : AppColors.sidebarText,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                        color: isSelected
+                            ? Colors.white
+                            : AppColors.sidebarText,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w400,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -161,12 +207,21 @@ class SideNavigation extends StatelessWidget {
                   // Badge cho Chat
                   if (index == 4)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 7,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.error,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Text('4', style: AppTextStyles.labelSmall.copyWith(color: Colors.white, fontSize: 10)),
+                      child: Text(
+                        '4',
+                        style: AppTextStyles.labelSmall.copyWith(
+                          color: Colors.white,
+                          fontSize: 10,
+                        ),
+                      ),
                     ),
                 ],
               ],
@@ -179,22 +234,46 @@ class SideNavigation extends StatelessWidget {
 
   Widget _buildUserProfile() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: isCollapsed ? 16 : 20, vertical: 8),
+      padding: EdgeInsets.symmetric(
+        horizontal: isCollapsed ? 16 : 20,
+        vertical: 8,
+      ),
       child: Row(
         children: [
-          const UserAvatar(initials: 'AD', size: 36, showStatus: true, isOnline: true),
+          const UserAvatar(
+            initials: 'AD',
+            size: 36,
+            showStatus: true,
+            isOnline: true,
+          ),
           if (!isCollapsed) ...[
             const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Admin HRM', style: AppTextStyles.titleSmall.copyWith(color: Colors.white, fontSize: 13)),
-                  Text('admin@hrm.vn', style: AppTextStyles.labelSmall.copyWith(color: AppColors.sidebarText, fontSize: 10)),
+                  Text(
+                    'Admin HRM',
+                    style: AppTextStyles.titleSmall.copyWith(
+                      color: Colors.white,
+                      fontSize: 13,
+                    ),
+                  ),
+                  Text(
+                    'admin@hrm.vn',
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: AppColors.sidebarText,
+                      fontSize: 10,
+                    ),
+                  ),
                 ],
               ),
             ),
-            Icon(Icons.settings_outlined, color: AppColors.sidebarText, size: 18),
+            Icon(
+              Icons.settings_outlined,
+              color: AppColors.sidebarText,
+              size: 18,
+            ),
           ],
         ],
       ),
