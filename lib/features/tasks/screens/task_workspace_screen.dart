@@ -156,9 +156,32 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
           ),
           const SizedBox(height: 8),
           // View toggle
-          ViewToggle(
-            selectedIndex: _viewIndex,
-            onChanged: (i) => setState(() => _viewIndex = i),
+          Row(
+            children: [
+              Expanded(
+                child: ViewToggle(
+                  selectedIndex: _viewIndex,
+                  onChanged: (i) => setState(() => _viewIndex = i),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceVariant,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColors.borderLight),
+                ),
+                child: IconButton(
+                  onPressed: () => _showTaskFilterSheet(context),
+                  icon: const Icon(Icons.filter_list_rounded, size: 18),
+                  padding: const EdgeInsets.all(8),
+                  constraints: const BoxConstraints(
+                    minWidth: 36,
+                    minHeight: 36,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

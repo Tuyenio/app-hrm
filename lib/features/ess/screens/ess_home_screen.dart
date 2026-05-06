@@ -22,7 +22,7 @@ class EssHomeScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ── Greeting Header ─────────────────────────────────────
-              _buildGreetingHeader(),
+              _buildGreetingHeader(context),
               // ── Clock In/Out Button ─────────────────────────────────
               _buildClockInOut(context),
               // ── Quick Actions Grid ──────────────────────────────────
@@ -39,51 +39,52 @@ class EssHomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildGreetingHeader() {
+  Widget _buildGreetingHeader(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [AppColors.primary, AppColors.primaryLight],
-          begin: Alignment.topLeft, end: Alignment.bottomRight,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Top bar
           Row(
             children: [
-              const UserAvatar(initials: 'NMT', size: 46, backgroundColor: Color(0x44FFFFFF)),
+              const UserAvatar(
+                initials: 'NMT',
+                size: 46,
+                backgroundColor: Color(0x44FFFFFF),
+              ),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Xin chào! 👋', style: AppTextStyles.bodyMedium.copyWith(color: Colors.white70)),
-                    Text(currentUser.name, style: AppTextStyles.headlineMedium.copyWith(color: Colors.white, fontSize: 20)),
+                    Text(
+                      'Xin chào! 👋',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: Colors.white70,
+                      ),
+                    ),
+                    Text(
+                      currentUser.name,
+                      style: AppTextStyles.headlineMedium.copyWith(
+                        color: Colors.white,
+                        fontSize: 20,
+                      ),
+                    ),
                   ],
                 ),
               ),
-              // Notification
-              Stack(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)),
-                    child: const Icon(Icons.notifications_outlined, color: Colors.white, size: 22),
-                  ),
-                  Positioned(right: 6, top: 6, child: Container(
-                    width: 8, height: 8,
-                    decoration: BoxDecoration(color: AppColors.error, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 1.5)),
-                  )),
-                ],
-              ),
+              _buildNotificationButton(context),
             ],
           ),
           const SizedBox(height: 16),
-          // Info chips
           Row(
             children: [
               _infoChip(Icons.business_rounded, currentUser.department),
@@ -96,16 +97,61 @@ class EssHomeScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildNotificationButton(BuildContext context) {
+    return GestureDetector(
+      onTap: () => showNotificationCenter(context),
+      child: Stack(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+            ),
+            child: const Icon(
+              Icons.notifications_outlined,
+              color: Colors.white,
+              size: 22,
+            ),
+          ),
+          Positioned(
+            right: 6,
+            top: 6,
+            child: Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: AppColors.error,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 1.5),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _infoChip(IconData icon, String label) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(20),
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 13, color: Colors.white70),
           const SizedBox(width: 5),
-          Text(label, style: AppTextStyles.labelSmall.copyWith(color: Colors.white, fontSize: 11)),
+          Text(
+            label,
+            style: AppTextStyles.labelSmall.copyWith(
+              color: Colors.white,
+              fontSize: 11,
+            ),
+          ),
         ],
       ),
     );

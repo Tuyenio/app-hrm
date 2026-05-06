@@ -21,51 +21,47 @@ class DashboardScreen extends StatelessWidget {
       backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [
-          // ── App Bar ─────────────────────────────────────────────────
           SliverToBoxAdapter(child: _buildHeader(context, isMobile)),
-          // ── KPI Cards ───────────────────────────────────────────────
           SliverPadding(
             padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
             sliver: const SliverToBoxAdapter(child: KpiCardsRow()),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 20)),
-          // ── Charts ──────────────────────────────────────────────────
           SliverPadding(
             padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
             sliver: SliverToBoxAdapter(
               child: isMobile
-                  ? Column(children: [
-                      const RevenueChart(),
-                      const SizedBox(height: 16),
-                      const TaskCompletionChart(),
+                  ? Column(children: const [
+                      RevenueChart(),
+                      SizedBox(height: 16),
+                      TaskCompletionChart(),
                     ])
                   : Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Expanded(child: RevenueChart()),
-                        const SizedBox(width: 16),
-                        const Expanded(child: TaskCompletionChart()),
+                      children: const [
+                        Expanded(child: RevenueChart()),
+                        SizedBox(width: 16),
+                        Expanded(child: TaskCompletionChart()),
                       ],
                     ),
             ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 20)),
-          // ── RAG List + Heatmap ──────────────────────────────────────
           SliverPadding(
             padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
             sliver: SliverToBoxAdapter(
               child: isMobile
-                  ? Column(children: [
-                      const ProjectRagList(),
-                      const SizedBox(height: 16),
-                      const WorkloadHeatmap(),
+                  ? Column(children: const [
+                      ProjectRagList(),
+                      SizedBox(height: 16),
+                      WorkloadHeatmap(),
                     ])
                   : Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Expanded(flex: 3, child: ProjectRagList()),
-                        const SizedBox(width: 16),
-                        const Expanded(flex: 4, child: WorkloadHeatmap()),
+                      children: const [
+                        Expanded(flex: 3, child: ProjectRagList()),
+                        SizedBox(width: 16),
+                        Expanded(flex: 4, child: WorkloadHeatmap()),
                       ],
                     ),
             ),
@@ -78,53 +74,137 @@ class DashboardScreen extends StatelessWidget {
 
   Widget _buildHeader(BuildContext context, bool isMobile) {
     return Container(
-      padding: EdgeInsets.fromLTRB(isMobile ? 16 : 24, 16, isMobile ? 16 : 24, 16),
+      margin: EdgeInsets.fromLTRB(isMobile ? 16 : 24, 16, isMobile ? 16 : 24, 0),
+      padding: EdgeInsets.fromLTRB(isMobile ? 18 : 24, 18, isMobile ? 18 : 24, 18),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF0F4C81), Color(0xFF1A5C9E)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.18),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
       child: isMobile
-          // ── MOBILE HEADER ──────────────────────────────────────
-          ? Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          ? Stack(
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Dashboard', style: AppTextStyles.headlineLarge.copyWith(fontSize: 22)),
-                          const SizedBox(height: 2),
-                          Text('Thứ Ba, 06/05/2026', style: AppTextStyles.bodySmall),
+                Positioned(
+                  right: -18,
+                  top: -18,
+                  child: Container(
+                    width: 96,
+                    height: 96,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          Colors.white.withValues(alpha: 0.18),
+                          Colors.transparent,
                         ],
                       ),
                     ),
-                    _buildIconButton(context, Icons.notifications_outlined, badge: '5', onTap: () => showNotificationCenter(context)),
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.14),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const Icon(Icons.dashboard_rounded, color: Colors.white, size: 22),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Dashboard Tổng Quan',
+                                style: AppTextStyles.headlineLarge.copyWith(fontSize: 22, color: Colors.white),
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                'Theo dõi vận hành theo thời gian thực',
+                                style: AppTextStyles.bodySmall.copyWith(color: Colors.white70),
+                              ),
+                            ],
+                          ),
+                        ),
+                        _buildIconButton(
+                          context,
+                          Icons.notifications_outlined,
+                          badge: '5',
+                          light: true,
+                          onTap: () => showNotificationCenter(context),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildSoftInfoPill('Thứ Ba, 06/05/2026', Icons.schedule_rounded),
+                        ),
+                        const SizedBox(width: 8),
+                        _buildActionIconButton(
+                          Icons.filter_list_rounded,
+                          onTap: () => _showDashboardFilter(context),
+                        ),
+                        const SizedBox(width: 8),
+                        _buildActionIconButton(
+                          Icons.download_rounded,
+                          onTap: () => showExportDialog(context),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ],
             )
-          // ── DESKTOP HEADER ─────────────────────────────────────
           : Row(
               children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.14),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: const Icon(Icons.dashboard_rounded, color: Colors.white, size: 24),
+                ),
+                const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Dashboard Tổng Quan', style: AppTextStyles.headlineLarge),
+                      Text('Dashboard Tổng Quan', style: AppTextStyles.headlineLarge.copyWith(color: Colors.white)),
                       const SizedBox(height: 4),
-                      Text('Xin chào, Admin • Thứ Ba, 06/05/2026', style: AppTextStyles.bodySmall),
+                      Text('Xin chào, Admin • Thứ Ba, 06/05/2026', style: AppTextStyles.bodySmall.copyWith(color: Colors.white70)),
                     ],
                   ),
                 ),
-                _buildIconButton(context, Icons.notifications_outlined, badge: '5', onTap: () => showNotificationCenter(context)),
+                _buildIconButton(context, Icons.notifications_outlined, badge: '5', light: true, onTap: () => showNotificationCenter(context)),
                 const SizedBox(width: 8),
-                _buildIconButton(context, Icons.filter_list_rounded, onTap: () => _showDashboardFilter(context)),
+                _buildIconButton(context, Icons.filter_list_rounded, light: true, onTap: () => _showDashboardFilter(context)),
                 const SizedBox(width: 12),
                 ElevatedButton.icon(
                   onPressed: () => showExportDialog(context),
                   icon: const Icon(Icons.download_rounded, size: 18),
                   label: const Text('Xuất báo cáo'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.white,
+                    foregroundColor: AppColors.primary,
+                    elevation: 0,
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   ),
                 ),
@@ -133,18 +213,32 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildIconButton(BuildContext context, IconData icon, {String? badge, required VoidCallback onTap}) {
+  Widget _buildIconButton(
+    BuildContext context,
+    IconData icon, {
+    String? badge,
+    required VoidCallback onTap,
+    bool light = false,
+  }) {
     return Stack(
       children: [
         Container(
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: light ? Colors.white.withValues(alpha: 0.15) : AppColors.surface,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: AppColors.borderLight),
+            border: Border.all(
+              color: light
+                  ? Colors.white.withValues(alpha: 0.14)
+                  : AppColors.borderLight,
+            ),
           ),
           child: IconButton(
             onPressed: onTap,
-            icon: Icon(icon, size: 20, color: AppColors.textSecondary),
+            icon: Icon(
+              icon,
+              size: 20,
+              color: light ? Colors.white : AppColors.textSecondary,
+            ),
             padding: const EdgeInsets.all(8),
             constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
           ),
@@ -159,6 +253,54 @@ class DashboardScreen extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+
+  Widget _buildSoftInfoPill(String label, IconData icon) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 14, color: Colors.white70),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: AppTextStyles.labelSmall.copyWith(
+                color: Colors.white,
+                fontSize: 11,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionIconButton(
+    IconData icon, {
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+      ),
+      child: IconButton(
+        onPressed: onTap,
+        icon: Icon(icon, size: 18, color: Colors.white),
+        padding: const EdgeInsets.all(10),
+        constraints: const BoxConstraints(minWidth: 42, minHeight: 42),
+        tooltip: icon == Icons.download_rounded ? 'Xuất báo cáo' : 'Bộ lọc',
+      ),
     );
   }
 
