@@ -63,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 20),
                     // ── Footer ─────────────────────────────────────────
                     Text(
-                      '© 2026 HRM Pro Enterprise Suite',
+                      '© 2026 ICS HRM Enterprise Suite',
                       style: AppTextStyles.bodySmall.copyWith(
                         color: Colors.white38,
                         fontSize: 11,
@@ -102,7 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         const SizedBox(height: 16),
         Text(
-          'HRM Pro',
+          'ICS HRM',
           style: AppTextStyles.headlineLarge.copyWith(
             color: Colors.white,
             fontSize: 28,

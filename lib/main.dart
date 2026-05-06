@@ -13,7 +13,7 @@ import 'features/ess/screens/ess_home_screen.dart';
 import 'features/chat/screens/chat_list_screen.dart';
 
 /// ============================================================================
-/// HRM PRO - ENTERPRISE SUITE
+/// ICS HRM - ENTERPRISE SUITE
 /// Entry point chính của hệ thống Quản trị Nhân sự Doanh nghiệp.
 /// Tích hợp Auth flow + MainShell (Admin + ESS).
 /// ============================================================================
@@ -27,7 +27,7 @@ class HrmApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'HRM Pro - Enterprise Suite',
+      title: 'ICS HRM - Enterprise Suite',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       home: const SplashGate(),
@@ -268,7 +268,7 @@ class _MainShellState extends State<MainShell> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'HRM Pro',
+                          'ICS HRM',
                           style: AppTextStyles.titleLarge.copyWith(
                             color: Colors.white,
                             fontSize: 17,

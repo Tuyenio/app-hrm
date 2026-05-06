@@ -9,6 +9,6 @@ void main() {
 
     // Verify login screen is shown initially
     expect(find.text('Đăng nhập'), findsWidgets);
-    expect(find.text('HRM Pro'), findsWidgets);
+    expect(find.text('ICS HRM'), findsWidgets);
   });
 }

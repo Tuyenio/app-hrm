@@ -1,11 +1,11 @@
 {
-    "name": "HRM Pro - Enterprise Suite",
-    "short_name": "HRM Pro",
+    "name": "ICS HRM - Enterprise Suite",
+    "short_name": "ICS HRM",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0E2A4A",
     "theme_color": "#0E2A4A",
-    "description": "HRM Pro - Enterprise Suite",
+    "description": "ICS HRM - Enterprise Suite",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

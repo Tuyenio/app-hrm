@@ -123,7 +123,7 @@ class SideNavigation extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'HRM Pro',
+                    'ICS HRM',
                     style: AppTextStyles.titleLarge.copyWith(
                       color: Colors.white,
                       fontSize: 17,
