@@ -113,7 +113,9 @@ class _SplashGateState extends State<SplashGate> {
                           offset: const Offset(0, 16),
                         ),
                         BoxShadow(
-                          color: const Color(0xFF5FCBFF).withValues(alpha: 0.28),
+                          color: const Color(
+                            0xFF5FCBFF,
+                          ).withValues(alpha: 0.28),
                           blurRadius: 44,
                           spreadRadius: 1,
                         ),
