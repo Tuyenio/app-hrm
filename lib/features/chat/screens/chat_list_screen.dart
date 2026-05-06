@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/user_avatar.dart';
+import '../../../core/widgets/interactive_overlays.dart';
 import '../../../data/mock/chat_data.dart';
+import '../../../data/mock/employee_data.dart';
 import 'chat_detail_screen.dart';
 
 /// ============================================================================
@@ -94,9 +96,9 @@ class _ChatListScreenState extends State<ChatListScreen> {
             children: [
               Text('Chat', style: AppTextStyles.headlineLarge.copyWith(fontSize: 22)),
               const Spacer(),
-              _iconBtn(Icons.edit_square, () {}),
+              _iconBtn(Icons.edit_square, () => _showCreateGroupSheet(context)),
               const SizedBox(width: 4),
-              _iconBtn(Icons.more_horiz_rounded, () {}),
+              _iconBtn(Icons.more_horiz_rounded, () => _showChatSettingsMenu(context)),
             ],
           ),
           const SizedBox(height: 10),
@@ -174,6 +176,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
             ));
           }
         },
+        onLongPress: () => _showConversationContextMenu(context, conv),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
@@ -292,5 +295,116 @@ class _ChatListScreenState extends State<ChatListScreen> {
         )),
       ),
     );
+  }
+
+  // ── CREATE GROUP CHAT SHEET ─────────────────────────────────────────────
+  void _showCreateGroupSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.85,
+        maxChildSize: 0.95,
+        minChildSize: 0.5,
+        builder: (context, sc) => Container(
+          decoration: const BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+          child: StatefulBuilder(
+            builder: (context, setModalState) {
+              final selectedUsers = <String>{};
+              return Column(children: [
+                Center(child: Container(margin: const EdgeInsets.only(top: 10), width: 40, height: 4, decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(2)))),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                  child: Row(children: [
+                    Text('Tạo nhóm chat', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18)),
+                    const Spacer(),
+                    IconButton(icon: const Icon(Icons.close_rounded), onPressed: () => Navigator.pop(context)),
+                  ]),
+                ),
+                const Divider(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  child: TextField(decoration: const InputDecoration(hintText: 'Tên nhóm (VD: Team Backend)', prefixIcon: Icon(Icons.group_rounded, size: 20))),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Container(
+                    height: 40,
+                    decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(10)),
+                    child: TextField(
+                      style: AppTextStyles.bodySmall,
+                      decoration: InputDecoration(
+                        hintText: 'Tìm thành viên...',
+                        hintStyle: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
+                        prefixIcon: const Icon(Icons.search_rounded, size: 18, color: AppColors.textTertiary),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Expanded(
+                  child: ListView.builder(
+                    controller: sc,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    itemCount: mockEmployeeList.length,
+                    itemBuilder: (context, i) {
+                      final emp = mockEmployeeList[i];
+                      final isChecked = selectedUsers.contains(emp.id);
+                      return CheckboxListTile(
+                        value: isChecked,
+                        onChanged: (v) => setModalState(() => v == true ? selectedUsers.add(emp.id) : selectedUsers.remove(emp.id)),
+                        title: Text(emp.name, style: AppTextStyles.titleSmall),
+                        subtitle: Text(emp.position, style: AppTextStyles.bodySmall.copyWith(fontSize: 11)),
+                        secondary: UserAvatar(initials: emp.avatar, size: 36),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        controlAffinity: ListTileControlAffinity.trailing,
+                      );
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () { Navigator.pop(context); showHrmSuccessSnackbar(context, 'Đã tạo nhóm chat mới'); },
+                      child: const Text('Tạo nhóm'),
+                    ),
+                  ),
+                ),
+              ]);
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── CHAT SETTINGS MENU ─────────────────────────────────────────────────
+  void _showChatSettingsMenu(BuildContext context) {
+    showHrmContextMenu(context, items: [
+      HrmContextMenuItem(icon: Icons.mark_email_read_rounded, label: 'Đánh dấu tất cả đã đọc', onTap: () => showHrmSuccessSnackbar(context, 'Đã đánh dấu tất cả đã đọc')),
+      HrmContextMenuItem(icon: Icons.push_pin_rounded, label: 'Tin nhắn đã ghim', onTap: () => showHrmSuccessSnackbar(context, 'Đang mở tin nhắn đã ghim...')),
+      HrmContextMenuItem(icon: Icons.group_rounded, label: 'Quản lý nhóm', onTap: () => showHrmSuccessSnackbar(context, 'Đang mở quản lý nhóm...')),
+      HrmContextMenuItem(icon: Icons.settings_rounded, label: 'Cài đặt chat', onTap: () => showHrmSuccessSnackbar(context, 'Đang mở cài đặt...')),
+      HrmContextMenuItem(icon: Icons.archive_rounded, label: 'Lưu trữ cuộc trò chuyện', onTap: () => showHrmSuccessSnackbar(context, 'Đã lưu trữ')),
+    ]);
+  }
+
+  // ── CONVERSATION CONTEXT MENU (Long press) ─────────────────────────────
+  void _showConversationContextMenu(BuildContext context, ChatConversation conv) {
+    showHrmContextMenu(context, items: [
+      HrmContextMenuItem(icon: Icons.push_pin_rounded, label: 'Ghim lên đầu', onTap: () => showHrmSuccessSnackbar(context, 'Đã ghim "${conv.name}"')),
+      HrmContextMenuItem(icon: Icons.mark_email_read_rounded, label: 'Đánh dấu đã đọc', onTap: () => showHrmSuccessSnackbar(context, 'Đã đánh dấu đã đọc')),
+      HrmContextMenuItem(icon: Icons.notifications_off_rounded, label: 'Tắt thông báo', onTap: () => showHrmSuccessSnackbar(context, 'Đã tắt thông báo')),
+      HrmContextMenuItem(icon: Icons.visibility_off_rounded, label: 'Ẩn cuộc trò chuyện', onTap: () => showHrmSuccessSnackbar(context, 'Đã ẩn cuộc trò chuyện')),
+      HrmContextMenuItem(icon: Icons.delete_rounded, label: 'Xóa cuộc trò chuyện', isDanger: true, onTap: () async {
+        final confirmed = await showHrmConfirmDialog(context, title: 'Xóa cuộc trò chuyện?', message: 'Bạn có chắc muốn xóa cuộc trò chuyện với "${conv.name}"? Hành động này không thể hoàn tác.', confirmText: 'Xóa', isDanger: true, icon: Icons.delete_forever_rounded);
+        if (confirmed == true && context.mounted) showHrmSuccessSnackbar(context, 'Đã xóa cuộc trò chuyện');
+      }),
+    ]);
   }
 }

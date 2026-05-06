@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/interactive_overlays.dart';
 import '../../../data/mock/permission_data.dart';
 
 /// ============================================================================
@@ -29,7 +30,7 @@ class AuditLogView extends StatelessWidget {
                 Text('Nhật ký Hệ thống', style: AppTextStyles.titleLarge.copyWith(fontSize: 15)),
                 const Spacer(),
                 TextButton.icon(
-                  onPressed: () {},
+                  onPressed: () => showHrmSuccessSnackbar(context, 'Đang mở nhật ký đầy đủ...'),
                   icon: const Icon(Icons.open_in_new_rounded, size: 14),
                   label: const Text('Xem tất cả'),
                   style: TextButton.styleFrom(textStyle: AppTextStyles.labelMedium.copyWith(fontSize: 11)),
@@ -158,7 +159,7 @@ class DelegationPanel extends StatelessWidget {
                 const SizedBox(height: 12),
                 // Add delegation button
                 OutlinedButton.icon(
-                  onPressed: () {},
+                  onPressed: () => showHrmSuccessSnackbar(context, 'Mở form tạo ủy quyền...'),
                   icon: const Icon(Icons.add_rounded, size: 16),
                   label: const Text('Tạo ủy quyền mới'),
                   style: OutlinedButton.styleFrom(

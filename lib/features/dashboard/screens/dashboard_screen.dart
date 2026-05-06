@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/interactive_overlays.dart';
 import '../widgets/kpi_cards_row.dart';
 import '../widgets/project_rag_list.dart';
 import '../widgets/workload_heatmap.dart';
@@ -21,7 +22,7 @@ class DashboardScreen extends StatelessWidget {
       body: CustomScrollView(
         slivers: [
           // ── App Bar ─────────────────────────────────────────────────
-          SliverToBoxAdapter(child: _buildHeader(isMobile)),
+          SliverToBoxAdapter(child: _buildHeader(context, isMobile)),
           // ── KPI Cards ───────────────────────────────────────────────
           SliverPadding(
             padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
@@ -75,7 +76,7 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(bool isMobile) {
+  Widget _buildHeader(BuildContext context, bool isMobile) {
     return Container(
       padding: EdgeInsets.fromLTRB(isMobile ? 16 : 24, 16, isMobile ? 16 : 24, 16),
       child: isMobile
@@ -95,7 +96,7 @@ class DashboardScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                    _buildIconButton(Icons.notifications_outlined, badge: '5'),
+                    _buildIconButton(context, Icons.notifications_outlined, badge: '5', onTap: () => showNotificationCenter(context)),
                   ],
                 ),
               ],
@@ -113,12 +114,12 @@ class DashboardScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                _buildIconButton(Icons.notifications_outlined, badge: '5'),
+                _buildIconButton(context, Icons.notifications_outlined, badge: '5', onTap: () => showNotificationCenter(context)),
                 const SizedBox(width: 8),
-                _buildIconButton(Icons.filter_list_rounded),
+                _buildIconButton(context, Icons.filter_list_rounded, onTap: () => _showDashboardFilter(context)),
                 const SizedBox(width: 12),
                 ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () => showExportDialog(context),
                   icon: const Icon(Icons.download_rounded, size: 18),
                   label: const Text('Xuất báo cáo'),
                   style: ElevatedButton.styleFrom(
@@ -132,7 +133,7 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildIconButton(IconData icon, {String? badge}) {
+  Widget _buildIconButton(BuildContext context, IconData icon, {String? badge, required VoidCallback onTap}) {
     return Stack(
       children: [
         Container(
@@ -142,7 +143,7 @@ class DashboardScreen extends StatelessWidget {
             border: Border.all(color: AppColors.borderLight),
           ),
           child: IconButton(
-            onPressed: () {},
+            onPressed: onTap,
             icon: Icon(icon, size: 20, color: AppColors.textSecondary),
             padding: const EdgeInsets.all(8),
             constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
@@ -158,6 +159,71 @@ class DashboardScreen extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+
+  void _showDashboardFilter(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) {
+          return Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(2)))),
+                const SizedBox(height: 12),
+                Text('Bộ lọc Dashboard', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18)),
+                const SizedBox(height: 16),
+                Text('Khoảng thời gian', style: AppTextStyles.labelLarge),
+                const SizedBox(height: 8),
+                Wrap(spacing: 8, runSpacing: 8, children: [
+                  _filterChip('Hôm nay', true), _filterChip('Tuần này', false),
+                  _filterChip('Tháng này', false), _filterChip('Quý này', false),
+                  _filterChip('Tùy chỉnh', false),
+                ]),
+                const SizedBox(height: 16),
+                Text('Phòng ban', style: AppTextStyles.labelLarge),
+                const SizedBox(height: 8),
+                Wrap(spacing: 8, runSpacing: 8, children: [
+                  _filterChip('Tất cả', true), _filterChip('IT', false),
+                  _filterChip('HR', false), _filterChip('Sales', false),
+                  _filterChip('Design', false),
+                ]),
+                const SizedBox(height: 20),
+                Row(children: [
+                  Expanded(child: OutlinedButton(onPressed: () => Navigator.pop(ctx), child: const Text('Đặt lại'))),
+                  const SizedBox(width: 12),
+                  Expanded(child: ElevatedButton(
+                    onPressed: () { Navigator.pop(ctx); showHrmSuccessSnackbar(context, 'Đã áp dụng bộ lọc'); },
+                    child: const Text('Áp dụng'),
+                  )),
+                ]),
+                const SizedBox(height: 8),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _filterChip(String label, bool selected) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      decoration: BoxDecoration(
+        color: selected ? AppColors.primary : AppColors.surfaceVariant,
+        borderRadius: BorderRadius.circular(20),
+        border: selected ? null : Border.all(color: AppColors.borderLight),
+      ),
+      child: Text(label, style: AppTextStyles.labelMedium.copyWith(
+        color: selected ? Colors.white : AppColors.textSecondary,
+        fontWeight: selected ? FontWeight.w600 : FontWeight.w400, fontSize: 12,
+      )),
     );
   }
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/interactive_overlays.dart';
 import '../../../data/mock/permission_data.dart';
+import '../../../data/mock/employee_data.dart';
 import '../widgets/permission_table.dart';
 import '../widgets/mass_action_toolbar.dart';
 import '../widgets/audit_log_view.dart';
@@ -80,7 +82,7 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
                 ),
               ),
               ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: () => _showSaveConfirmation(context),
                 icon: const Icon(Icons.save_rounded, size: 14),
                 label: const Text('Lưu'),
                 style: ElevatedButton.styleFrom(
@@ -141,6 +143,15 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
               ),
             ),
           ),
+          const SizedBox(height: 8),
+          // Action buttons for mobile
+          Row(children: [
+            Expanded(child: _mobileActionBtn(Icons.add_rounded, 'Tạo Role', AppColors.success, () => _showCreateRoleSheet(context))),
+            const SizedBox(width: 8),
+            Expanded(child: _mobileActionBtn(Icons.copy_rounded, 'Nhân bản', AppColors.info, () => _showCloneRoleDialog(context))),
+            const SizedBox(width: 8),
+            Expanded(child: _mobileActionBtn(Icons.download_rounded, 'Xuất Log', AppColors.textSecondary, () => showExportDialog(context))),
+          ]),
         ],
       ),
     );
@@ -450,7 +461,7 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
                 ),
               ),
               ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: () => _showSaveConfirmation(context),
                 icon: const Icon(Icons.save_rounded, size: 16),
                 label: const Text('Lưu thay đổi'),
               ),
@@ -567,7 +578,7 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
                 ),
                 const SizedBox(height: 12),
                 OutlinedButton.icon(
-                  onPressed: () {},
+                  onPressed: () => _showCreateDelegationSheet(context),
                   icon: const Icon(Icons.add_rounded, size: 16),
                   label: const Text('Tạo ủy quyền mới'),
                   style: OutlinedButton.styleFrom(
@@ -655,6 +666,200 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
             style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
           ),
         ],
+      ),
+    );
+  }
+
+  // ── MOBILE ACTION BUTTON ────────────────────────────────────────────────
+  Widget _mobileActionBtn(IconData icon, String label, Color color, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(color: color.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(10), border: Border.all(color: color.withValues(alpha: 0.2))),
+        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 4),
+          Text(label, style: AppTextStyles.labelMedium.copyWith(color: color, fontWeight: FontWeight.w600, fontSize: 11)),
+        ]),
+      ),
+    );
+  }
+
+  // ── SAVE CONFIRMATION ──────────────────────────────────────────────────
+  void _showSaveConfirmation(BuildContext context) async {
+    final confirmed = await showHrmConfirmDialog(
+      context,
+      title: 'Lưu thay đổi quyền?',
+      message: 'Các thay đổi sẽ được áp dụng cho vai trò "${_selectedRole.name}" và ảnh hưởng ${_selectedRole.userCount} người dùng.',
+      confirmText: 'Lưu',
+      icon: Icons.save_rounded,
+    );
+    if (confirmed == true && context.mounted) {
+      showHrmSuccessSnackbar(context, 'Đã lưu thay đổi quyền thành công');
+    }
+  }
+
+  // ── CREATE ROLE SHEET ───────────────────────────────────────────────────
+  void _showCreateRoleSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: Container(
+          decoration: const BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+          padding: const EdgeInsets.all(20),
+          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(2)))),
+            const SizedBox(height: 12),
+            Text('Tạo vai trò mới', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18)),
+            const SizedBox(height: 16),
+            Text('Tên vai trò *', style: AppTextStyles.labelLarge),
+            const SizedBox(height: 6),
+            const TextField(decoration: InputDecoration(hintText: 'VD: Trưởng nhóm')),
+            const SizedBox(height: 14),
+            Text('Mô tả', style: AppTextStyles.labelLarge),
+            const SizedBox(height: 6),
+            const TextField(maxLines: 2, decoration: InputDecoration(hintText: 'Mô tả quyền hạn của vai trò...')),
+            const SizedBox(height: 14),
+            Text('Sao chép quyền từ', style: AppTextStyles.labelLarge),
+            const SizedBox(height: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.borderLight)),
+              child: DropdownButtonHideUnderline(child: DropdownButton<String>(
+                isExpanded: true, value: null, hint: const Text('Không (tạo trắng)'),
+                items: mockRoles.map((r) => DropdownMenuItem(value: r.id, child: Text(r.name))).toList(),
+                onChanged: (_) {},
+              )),
+            ),
+            const SizedBox(height: 20),
+            Row(children: [
+              Expanded(child: OutlinedButton(onPressed: () => Navigator.pop(context), child: const Text('Hủy'))),
+              const SizedBox(width: 12),
+              Expanded(child: ElevatedButton(
+                onPressed: () { Navigator.pop(context); showHrmSuccessSnackbar(context, 'Đã tạo vai trò mới'); },
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.success, foregroundColor: Colors.white),
+                child: const Text('Tạo vai trò'),
+              )),
+            ]),
+          ]),
+        ),
+      ),
+    );
+  }
+
+  // ── CLONE ROLE DIALOG ──────────────────────────────────────────────────
+  void _showCloneRoleDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('Nhân bản vai trò', style: AppTextStyles.headlineSmall.copyWith(fontSize: 17)),
+        content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('Tạo bản sao của vai trò "${_selectedRole.name}" với tất cả quyền hiện tại.', style: AppTextStyles.bodySmall),
+          const SizedBox(height: 16),
+          Text('Tên vai trò mới', style: AppTextStyles.labelLarge),
+          const SizedBox(height: 6),
+          TextField(decoration: InputDecoration(hintText: '${_selectedRole.name} (Copy)')),
+        ]),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Hủy')),
+          ElevatedButton(
+            onPressed: () { Navigator.pop(context); showHrmSuccessSnackbar(context, 'Đã nhân bản vai trò thành công'); },
+            child: const Text('Nhân bản'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── CREATE DELEGATION SHEET ─────────────────────────────────────────────
+  void _showCreateDelegationSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: Container(
+          decoration: const BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+          padding: const EdgeInsets.all(20),
+          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(2)))),
+            const SizedBox(height: 12),
+            Text('Tạo ủy quyền mới', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18)),
+            const SizedBox(height: 16),
+            Text('Người ủy quyền *', style: AppTextStyles.labelLarge),
+            const SizedBox(height: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.borderLight)),
+              child: DropdownButtonHideUnderline(child: DropdownButton<String>(
+                isExpanded: true, value: null, hint: const Text('Chọn người ủy quyền'),
+                items: mockEmployeeList.take(6).map((e) => DropdownMenuItem(value: e.id, child: Text(e.name))).toList(),
+                onChanged: (_) {},
+              )),
+            ),
+            const SizedBox(height: 14),
+            Text('Người được ủy quyền *', style: AppTextStyles.labelLarge),
+            const SizedBox(height: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.borderLight)),
+              child: DropdownButtonHideUnderline(child: DropdownButton<String>(
+                isExpanded: true, value: null, hint: const Text('Chọn người nhận'),
+                items: mockEmployeeList.take(6).map((e) => DropdownMenuItem(value: e.id, child: Text(e.name))).toList(),
+                onChanged: (_) {},
+              )),
+            ),
+            const SizedBox(height: 14),
+            Text('Phạm vi ủy quyền', style: AppTextStyles.labelLarge),
+            const SizedBox(height: 6),
+            const TextField(decoration: InputDecoration(hintText: 'VD: Duyệt nghỉ phép, Duyệt OT')),
+            const SizedBox(height: 14),
+            Text('Thời gian', style: AppTextStyles.labelLarge),
+            const SizedBox(height: 6),
+            Row(children: [
+              Expanded(child: GestureDetector(
+                onTap: () => showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime.now(), lastDate: DateTime(2027)),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                  decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.borderLight)),
+                  child: Row(children: [
+                    const Icon(Icons.calendar_today_rounded, size: 16, color: AppColors.textTertiary),
+                    const SizedBox(width: 8),
+                    Text('Từ ngày', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary)),
+                  ]),
+                ),
+              )),
+              const SizedBox(width: 8),
+              Expanded(child: GestureDetector(
+                onTap: () => showDatePicker(context: context, initialDate: DateTime.now().add(const Duration(days: 7)), firstDate: DateTime.now(), lastDate: DateTime(2027)),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                  decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.borderLight)),
+                  child: Row(children: [
+                    const Icon(Icons.calendar_today_rounded, size: 16, color: AppColors.textTertiary),
+                    const SizedBox(width: 8),
+                    Text('Đến ngày', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary)),
+                  ]),
+                ),
+              )),
+            ]),
+            const SizedBox(height: 20),
+            Row(children: [
+              Expanded(child: OutlinedButton(onPressed: () => Navigator.pop(context), child: const Text('Hủy'))),
+              const SizedBox(width: 12),
+              Expanded(child: ElevatedButton(
+                onPressed: () { Navigator.pop(context); showHrmSuccessSnackbar(context, 'Đã tạo ủy quyền mới'); },
+                child: const Text('Tạo ủy quyền'),
+              )),
+            ]),
+          ]),
+        ),
       ),
     );
   }

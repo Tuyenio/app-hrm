@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/user_avatar.dart';
+import '../../../core/widgets/interactive_overlays.dart';
 
 /// ============================================================================
 /// PERFORMANCE SCREEN - Đánh giá Hiệu suất & KPIs
@@ -50,7 +51,7 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
             Text('Chu kỳ đánh giá Q2/2026', style: AppTextStyles.bodySmall),
           ])),
           if (!isMobile) ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: () => showHrmSuccessSnackbar(context, 'Đang mở form tạo đánh giá...'),
             icon: const Icon(Icons.add_chart_rounded, size: 18),
             label: const Text('Tạo đánh giá'),
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),

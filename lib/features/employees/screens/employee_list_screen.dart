@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/user_avatar.dart';
+import '../../../core/widgets/interactive_overlays.dart';
 import '../../../data/mock/employee_data.dart';
 
 /// ============================================================================
@@ -73,7 +74,7 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
               ),
               if (!isMobile)
                 ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () => _showAddEmployeeSheet(context),
                   icon: const Icon(Icons.person_add_rounded, size: 18),
                   label: const Text('Thêm nhân viên'),
                   style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
@@ -82,7 +83,7 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
                 Container(
                   decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(8)),
                   child: IconButton(
-                    onPressed: () {},
+                    onPressed: () => _showAddEmployeeSheet(context),
                     icon: const Icon(Icons.person_add_rounded, size: 18, color: Colors.white),
                     padding: const EdgeInsets.all(8),
                     constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
@@ -391,5 +392,99 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
         Text(label, style: AppTextStyles.labelSmall.copyWith(color: color, fontSize: 10)),
       ]),
     );
+  }
+
+  // ── ADD EMPLOYEE SHEET ────────────────────────────────────────────────────
+  void _showAddEmployeeSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.85,
+        maxChildSize: 0.95,
+        minChildSize: 0.5,
+        builder: (context, sc) => Container(
+          decoration: const BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+          child: Column(children: [
+            Container(margin: const EdgeInsets.only(top: 10), width: 40, height: 4, decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(2))),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+              child: Row(children: [
+                Text('Thêm nhân viên mới', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18)),
+                const Spacer(),
+                IconButton(icon: const Icon(Icons.close_rounded), onPressed: () => Navigator.pop(context)),
+              ]),
+            ),
+            const Divider(),
+            Expanded(
+              child: SingleChildScrollView(
+                controller: sc,
+                padding: const EdgeInsets.all(20),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Center(
+                    child: Stack(children: [
+                      const UserAvatar(initials: '?', size: 72),
+                      Positioned(right: 0, bottom: 0, child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+                        child: const Icon(Icons.camera_alt_rounded, size: 14, color: Colors.white),
+                      )),
+                    ]),
+                  ),
+                  const SizedBox(height: 20),
+                  _formField('Họ và tên *', 'Nguyễn Văn A'),
+                  _formField('Email *', 'email@company.vn'),
+                  _formField('Điện thoại', '0912 345 678'),
+                  Text('Phòng ban *', style: AppTextStyles.labelLarge),
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.borderLight)),
+                    child: DropdownButtonHideUnderline(child: DropdownButton<String>(
+                      isExpanded: true, value: null, hint: const Text('Chọn phòng ban'),
+                      items: _departments.skip(1).map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
+                      onChanged: (_) {},
+                    )),
+                  ),
+                  const SizedBox(height: 14),
+                  _formField('Chức vụ', 'VD: Senior Developer'),
+                  _formField('Mã NV', 'NV-013'),
+                  Text('Loại hợp đồng', style: AppTextStyles.labelLarge),
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.borderLight)),
+                    child: DropdownButtonHideUnderline(child: DropdownButton<String>(
+                      isExpanded: true, value: 'Chính thức',
+                      items: ['Chính thức', 'Thử việc', 'Part-time', 'Freelance'].map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
+                      onChanged: (_) {},
+                    )),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(children: [
+                    Expanded(child: OutlinedButton(onPressed: () => Navigator.pop(context), child: const Text('Hủy'))),
+                    const SizedBox(width: 12),
+                    Expanded(child: ElevatedButton(
+                      onPressed: () { Navigator.pop(context); showHrmSuccessSnackbar(context, 'Đã thêm nhân viên mới'); },
+                      child: const Text('Thêm nhân viên'),
+                    )),
+                  ]),
+                ]),
+              ),
+            ),
+          ]),
+        ),
+      ),
+    );
+  }
+
+  Widget _formField(String label, String hint) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text(label, style: AppTextStyles.labelLarge),
+      const SizedBox(height: 6),
+      TextField(decoration: InputDecoration(hintText: hint)),
+      const SizedBox(height: 14),
+    ]);
   }
 }

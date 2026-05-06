@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/interactive_overlays.dart';
+import '../../../data/mock/permission_data.dart';
 
 /// ============================================================================
 /// MASS ACTION TOOLBAR - Thanh hành động hàng loạt
@@ -39,22 +41,22 @@ class MassActionToolbar extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           // Action buttons
-          _actionButton(Icons.policy_outlined, 'Áp dụng Chính sách', AppColors.primary, true),
+          _actionButton(context, Icons.policy_outlined, 'Áp dụng Chính sách', AppColors.primary, true, () => _showApplyPolicyDialog(context)),
           const SizedBox(width: 8),
-          _actionButton(Icons.copy_rounded, 'Nhân bản Role', AppColors.textSecondary, false),
+          _actionButton(context, Icons.copy_rounded, 'Nhân bản Role', AppColors.textSecondary, false, () => _showCloneRoleDialog(context)),
           const SizedBox(width: 8),
-          _actionButton(Icons.download_rounded, 'Xuất Audit Log', AppColors.textSecondary, false),
+          _actionButton(context, Icons.download_rounded, 'Xuất Audit Log', AppColors.textSecondary, false, () => showExportDialog(context)),
           const SizedBox(width: 8),
-          _actionButton(Icons.add_rounded, 'Tạo Role mới', AppColors.success, true),
+          _actionButton(context, Icons.add_rounded, 'Tạo Role mới', AppColors.success, true, () => _showCreateRoleDialog(context)),
         ],
       ),
     );
   }
 
-  Widget _actionButton(IconData icon, String label, Color color, bool filled) {
+  Widget _actionButton(BuildContext context, IconData icon, String label, Color color, bool filled, VoidCallback onTap) {
     if (filled) {
       return ElevatedButton.icon(
-        onPressed: () {},
+        onPressed: onTap,
         icon: Icon(icon, size: 16),
         label: Text(label),
         style: ElevatedButton.styleFrom(
@@ -67,7 +69,7 @@ class MassActionToolbar extends StatelessWidget {
       );
     }
     return OutlinedButton.icon(
-      onPressed: () {},
+      onPressed: onTap,
       icon: Icon(icon, size: 16),
       label: Text(label),
       style: OutlinedButton.styleFrom(
@@ -76,6 +78,80 @@ class MassActionToolbar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         textStyle: AppTextStyles.labelMedium.copyWith(fontSize: 12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+  }
+
+  void _showApplyPolicyDialog(BuildContext context) async {
+    final confirmed = await showHrmConfirmDialog(
+      context,
+      title: 'Áp dụng chính sách?',
+      message: 'Chính sách sẽ được áp dụng cho tất cả các vai trò trong hệ thống.',
+      confirmText: 'Áp dụng',
+      icon: Icons.policy_outlined,
+    );
+    if (confirmed == true && context.mounted) showHrmSuccessSnackbar(context, 'Đã áp dụng chính sách');
+  }
+
+  void _showCloneRoleDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('Nhân bản vai trò', style: AppTextStyles.headlineSmall.copyWith(fontSize: 17)),
+        content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('Chọn vai trò nguồn và đặt tên cho vai trò mới.', style: AppTextStyles.bodySmall),
+          const SizedBox(height: 16),
+          Text('Vai trò nguồn', style: AppTextStyles.labelLarge),
+          const SizedBox(height: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.borderLight)),
+            child: DropdownButtonHideUnderline(child: DropdownButton<String>(
+              isExpanded: true, value: null, hint: const Text('Chọn vai trò'),
+              items: mockRoles.map((r) => DropdownMenuItem(value: r.id, child: Text(r.name))).toList(),
+              onChanged: (_) {},
+            )),
+          ),
+          const SizedBox(height: 12),
+          Text('Tên mới', style: AppTextStyles.labelLarge),
+          const SizedBox(height: 6),
+          const TextField(decoration: InputDecoration(hintText: 'Tên vai trò mới')),
+        ]),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Hủy')),
+          ElevatedButton(
+            onPressed: () { Navigator.pop(context); showHrmSuccessSnackbar(context, 'Đã nhân bản vai trò'); },
+            child: const Text('Nhân bản'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showCreateRoleDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('Tạo vai trò mới', style: AppTextStyles.headlineSmall.copyWith(fontSize: 17)),
+        content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('Tên vai trò *', style: AppTextStyles.labelLarge),
+          const SizedBox(height: 6),
+          const TextField(decoration: InputDecoration(hintText: 'VD: Trưởng nhóm')),
+          const SizedBox(height: 12),
+          Text('Mô tả', style: AppTextStyles.labelLarge),
+          const SizedBox(height: 6),
+          const TextField(maxLines: 2, decoration: InputDecoration(hintText: 'Mô tả quyền hạn...')),
+        ]),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Hủy')),
+          ElevatedButton(
+            onPressed: () { Navigator.pop(context); showHrmSuccessSnackbar(context, 'Đã tạo vai trò mới'); },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.success, foregroundColor: Colors.white),
+            child: const Text('Tạo'),
+          ),
+        ],
       ),
     );
   }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/interactive_overlays.dart';
 import '../../../data/mock/project_data.dart';
+import '../../../data/mock/employee_data.dart';
 import '../widgets/project_sidebar.dart';
 import '../widgets/kanban_board.dart';
 import '../widgets/gantt_chart_view.dart';
@@ -24,6 +26,8 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
   String _selectedProjectId = 'all';
   MockTask? _selectedTask;
   bool _showSidebar = true;
+  String _searchQuery = '';
+  String _priorityFilter = 'Tất cả';
   late final PageController _kanbanPageController;
   int _kanbanPageIndex = 0;
 
@@ -113,7 +117,7 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: IconButton(
-                  onPressed: () {},
+                  onPressed: () => _showCreateTaskSheet(context),
                   icon: const Icon(
                     Icons.add_rounded,
                     size: 18,
@@ -134,6 +138,23 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
             style: AppTextStyles.bodySmall,
           ),
           const SizedBox(height: 10),
+          // Search bar
+          Container(
+            height: 38,
+            decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(10)),
+            child: TextField(
+              onChanged: (v) => setState(() => _searchQuery = v),
+              style: AppTextStyles.bodySmall,
+              decoration: InputDecoration(
+                hintText: 'Tìm kiếm công việc...',
+                hintStyle: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
+                prefixIcon: const Icon(Icons.search_rounded, size: 18, color: AppColors.textTertiary),
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(vertical: 10),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
           // View toggle
           ViewToggle(
             selectedIndex: _viewIndex,
@@ -542,6 +563,17 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
             ...mockProjectList.map(
               (p) => _projectOption(p.id, p.name, Icons.folder_rounded),
             ),
+            const Divider(height: 20),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+                child: const Icon(Icons.add_rounded, size: 20, color: AppColors.success),
+              ),
+              title: Text('Tạo dự án mới', style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600, color: AppColors.success)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              onTap: () { Navigator.pop(context); _showCreateProjectSheet(context); },
+            ),
           ],
         ),
       ),
@@ -682,7 +714,7 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
               border: Border.all(color: AppColors.borderLight),
             ),
             child: IconButton(
-              onPressed: () {},
+              onPressed: () => _showTaskFilterSheet(context),
               icon: const Icon(Icons.filter_list_rounded, size: 18),
               padding: const EdgeInsets.all(8),
               constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
@@ -690,11 +722,223 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
           ),
           const SizedBox(width: 8),
           ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: () => _showCreateTaskSheet(context),
             icon: const Icon(Icons.add_rounded, size: 18),
             label: const Text('Tạo task'),
           ),
         ],
+      ),
+    );
+  }
+
+  // ── CREATE TASK SHEET ─────────────────────────────────────────────────────
+  void _showCreateTaskSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.85,
+        maxChildSize: 0.95,
+        minChildSize: 0.5,
+        builder: (context, sc) => Container(
+          decoration: const BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+          child: StatefulBuilder(
+            builder: (context, setModalState) {
+              int selPriority = 1;
+              return Column(
+                children: [
+                  Container(margin: const EdgeInsets.only(top: 10), width: 40, height: 4, decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(2))),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                    child: Row(children: [
+                      Text('Tạo công việc mới', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18)),
+                      const Spacer(),
+                      IconButton(icon: const Icon(Icons.close_rounded), onPressed: () => Navigator.pop(context)),
+                    ]),
+                  ),
+                  const Divider(),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: sc,
+                      padding: const EdgeInsets.all(20),
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text('Tiêu đề *', style: AppTextStyles.labelLarge),
+                        const SizedBox(height: 6),
+                        TextField(decoration: const InputDecoration(hintText: 'Nhập tiêu đề công việc')),
+                        const SizedBox(height: 16),
+                        Text('Mô tả', style: AppTextStyles.labelLarge),
+                        const SizedBox(height: 6),
+                        TextField(maxLines: 3, decoration: const InputDecoration(hintText: 'Mô tả chi tiết...')),
+                        const SizedBox(height: 16),
+                        Text('Người thực hiện', style: AppTextStyles.labelLarge),
+                        const SizedBox(height: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.borderLight)),
+                          child: DropdownButtonHideUnderline(child: DropdownButton<String>(
+                            isExpanded: true, value: null, hint: const Text('Chọn người thực hiện'),
+                            items: mockEmployeeList.take(8).map((e) => DropdownMenuItem(value: e.id, child: Text(e.name))).toList(),
+                            onChanged: (_) {},
+                          )),
+                        ),
+                        const SizedBox(height: 16),
+                        Text('Dự án', style: AppTextStyles.labelLarge),
+                        const SizedBox(height: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.borderLight)),
+                          child: DropdownButtonHideUnderline(child: DropdownButton<String>(
+                            isExpanded: true, value: null, hint: const Text('Chọn dự án'),
+                            items: mockProjectList.map((p) => DropdownMenuItem(value: p.id, child: Text(p.name))).toList(),
+                            onChanged: (_) {},
+                          )),
+                        ),
+                        const SizedBox(height: 16),
+                        Text('Hạn hoàn thành', style: AppTextStyles.labelLarge),
+                        const SizedBox(height: 6),
+                        GestureDetector(
+                          onTap: () => showDatePicker(context: context, initialDate: DateTime.now().add(const Duration(days: 7)), firstDate: DateTime.now(), lastDate: DateTime(2027)),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                            decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.borderLight)),
+                            child: Row(children: [
+                              const Icon(Icons.calendar_today_rounded, size: 18, color: AppColors.textTertiary),
+                              const SizedBox(width: 10),
+                              Text('Chọn ngày', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiary)),
+                            ]),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text('Độ ưu tiên', style: AppTextStyles.labelLarge),
+                        const SizedBox(height: 8),
+                        Wrap(spacing: 8, children: [
+                          _priorityChip('Thấp', AppColors.priorityLow),
+                          _priorityChip('Trung bình', AppColors.priorityMedium),
+                          _priorityChip('Cao', AppColors.priorityHigh),
+                          _priorityChip('Khẩn cấp', AppColors.priorityCritical),
+                        ]),
+                        const SizedBox(height: 24),
+                        Row(children: [
+                          Expanded(child: OutlinedButton(onPressed: () => Navigator.pop(context), child: const Text('Hủy'))),
+                          const SizedBox(width: 12),
+                          Expanded(child: ElevatedButton(
+                            onPressed: () { Navigator.pop(context); showHrmSuccessSnackbar(context, 'Đã tạo công việc mới'); },
+                            child: const Text('Tạo công việc'),
+                          )),
+                        ]),
+                      ]),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _priorityChip(String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(20), border: Border.all(color: color.withValues(alpha: 0.4))),
+      child: Text(label, style: AppTextStyles.labelMedium.copyWith(color: color, fontWeight: FontWeight.w600, fontSize: 12)),
+    );
+  }
+
+  // ── CREATE PROJECT SHEET ──────────────────────────────────────────────────
+  void _showCreateProjectSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: Container(
+          decoration: const BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+          padding: const EdgeInsets.all(20),
+          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(2)))),
+            const SizedBox(height: 12),
+            Text('Tạo dự án mới', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18)),
+            const SizedBox(height: 16),
+            Text('Tên dự án *', style: AppTextStyles.labelLarge),
+            const SizedBox(height: 6),
+            const TextField(decoration: InputDecoration(hintText: 'VD: Mobile App v4.0')),
+            const SizedBox(height: 14),
+            Text('Mô tả', style: AppTextStyles.labelLarge),
+            const SizedBox(height: 6),
+            const TextField(maxLines: 2, decoration: InputDecoration(hintText: 'Mô tả dự án...')),
+            const SizedBox(height: 14),
+            Text('Quản lý dự án', style: AppTextStyles.labelLarge),
+            const SizedBox(height: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.borderLight)),
+              child: DropdownButtonHideUnderline(child: DropdownButton<String>(
+                isExpanded: true, value: null, hint: const Text('Chọn PM'),
+                items: mockEmployeeList.take(5).map((e) => DropdownMenuItem(value: e.id, child: Text(e.name))).toList(),
+                onChanged: (_) {},
+              )),
+            ),
+            const SizedBox(height: 20),
+            Row(children: [
+              Expanded(child: OutlinedButton(onPressed: () => Navigator.pop(context), child: const Text('Hủy'))),
+              const SizedBox(width: 12),
+              Expanded(child: ElevatedButton(
+                onPressed: () { Navigator.pop(context); showHrmSuccessSnackbar(context, 'Đã tạo dự án mới'); },
+                child: const Text('Tạo dự án'),
+              )),
+            ]),
+          ]),
+        ),
+      ),
+    );
+  }
+
+  // ── FILTER SHEET ──────────────────────────────────────────────────────────
+  void _showTaskFilterSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(2)))),
+          const SizedBox(height: 12),
+          Text('Bộ lọc công việc', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18)),
+          const SizedBox(height: 16),
+          Text('Độ ưu tiên', style: AppTextStyles.labelLarge),
+          const SizedBox(height: 8),
+          Wrap(spacing: 8, runSpacing: 8, children: [
+            _priorityChip('Tất cả', AppColors.primary),
+            _priorityChip('Khẩn cấp', AppColors.priorityCritical),
+            _priorityChip('Cao', AppColors.priorityHigh),
+            _priorityChip('Trung bình', AppColors.priorityMedium),
+            _priorityChip('Thấp', AppColors.priorityLow),
+          ]),
+          const SizedBox(height: 16),
+          Text('Trạng thái', style: AppTextStyles.labelLarge),
+          const SizedBox(height: 8),
+          Wrap(spacing: 8, runSpacing: 8, children: [
+            _priorityChip('Cần làm', AppColors.kanbanTodo),
+            _priorityChip('Đang làm', AppColors.kanbanInProgress),
+            _priorityChip('Đánh giá', AppColors.kanbanReview),
+            _priorityChip('Hoàn thành', AppColors.kanbanDone),
+          ]),
+          const SizedBox(height: 20),
+          Row(children: [
+            Expanded(child: OutlinedButton(onPressed: () => Navigator.pop(context), child: const Text('Đặt lại'))),
+            const SizedBox(width: 12),
+            Expanded(child: ElevatedButton(
+              onPressed: () { Navigator.pop(context); showHrmSuccessSnackbar(context, 'Đã áp dụng bộ lọc'); },
+              child: const Text('Áp dụng'),
+            )),
+          ]),
+          const SizedBox(height: 8),
+        ]),
       ),
     );
   }

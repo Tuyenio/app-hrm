@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/interactive_overlays.dart';
 import '../../../data/mock/project_data.dart';
 import 'task_card.dart';
 
@@ -21,19 +22,19 @@ class KanbanBoard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildColumn('Cần làm', TaskStatus.todo, AppColors.kanbanTodo, Icons.radio_button_unchecked_rounded),
+          _buildColumn(context, 'Cần làm', TaskStatus.todo, AppColors.kanbanTodo, Icons.radio_button_unchecked_rounded),
           const SizedBox(width: 14),
-          _buildColumn('Đang làm', TaskStatus.inProgress, AppColors.kanbanInProgress, Icons.play_circle_outline_rounded),
+          _buildColumn(context, 'Đang làm', TaskStatus.inProgress, AppColors.kanbanInProgress, Icons.play_circle_outline_rounded),
           const SizedBox(width: 14),
-          _buildColumn('Đánh giá', TaskStatus.review, AppColors.kanbanReview, Icons.rate_review_outlined),
+          _buildColumn(context, 'Đánh giá', TaskStatus.review, AppColors.kanbanReview, Icons.rate_review_outlined),
           const SizedBox(width: 14),
-          _buildColumn('Hoàn thành', TaskStatus.done, AppColors.kanbanDone, Icons.check_circle_outline_rounded),
+          _buildColumn(context, 'Hoàn thành', TaskStatus.done, AppColors.kanbanDone, Icons.check_circle_outline_rounded),
         ],
       ),
     );
   }
 
-  Widget _buildColumn(String title, TaskStatus status, Color color, IconData icon) {
+  Widget _buildColumn(BuildContext context, String title, TaskStatus status, Color color, IconData icon) {
     final columnTasks = tasks.where((t) => t.status == status).toList();
     return Container(
       width: 300,
@@ -83,7 +84,7 @@ class KanbanBoard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(10, 0, 10, 12),
             child: InkWell(
-              onTap: () {},
+              onTap: () => showHrmSuccessSnackbar(context, 'Đang tạo công việc mới...'),
               borderRadius: BorderRadius.circular(8),
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 10),

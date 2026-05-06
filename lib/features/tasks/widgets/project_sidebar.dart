@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/interactive_overlays.dart';
 import '../../../data/mock/project_data.dart';
 
 /// ============================================================================
@@ -59,7 +60,7 @@ class ProjectSidebar extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(12),
             child: OutlinedButton.icon(
-              onPressed: () {},
+              onPressed: () => showHrmSuccessSnackbar(context, 'Đang mở form tạo dự án...'),
               icon: const Icon(Icons.add_rounded, size: 18),
               label: const Text('Tạo dự án mới'),
               style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(40), textStyle: AppTextStyles.labelMedium),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/user_avatar.dart';
+import '../../../core/widgets/interactive_overlays.dart';
 import '../../../data/mock/employee_data.dart';
 
 /// ============================================================================
@@ -23,9 +24,9 @@ class EssHomeScreen extends StatelessWidget {
               // ── Greeting Header ─────────────────────────────────────
               _buildGreetingHeader(),
               // ── Clock In/Out Button ─────────────────────────────────
-              _buildClockInOut(),
+              _buildClockInOut(context),
               // ── Quick Actions Grid ──────────────────────────────────
-              _buildQuickActions(),
+              _buildQuickActions(context),
               // ── My Tasks Today ──────────────────────────────────────
               _buildMyTasks(),
               // ── E-Payslip ───────────────────────────────────────────
@@ -110,7 +111,7 @@ class EssHomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildClockInOut() {
+  Widget _buildClockInOut(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       child: Container(
@@ -156,7 +157,7 @@ class EssHomeScreen extends StatelessWidget {
             ),
             // Clock out button
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () => showHrmSuccessSnackbar(context, 'Chấm công ra lúc ${TimeOfDay.now().format(context)}'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.error.withValues(alpha: 0.1),
                 foregroundColor: AppColors.error,
@@ -178,7 +179,7 @@ class EssHomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildQuickActions() {
+  Widget _buildQuickActions(BuildContext context) {
     final actions = [
       (Icons.event_note_rounded, 'Xin nghỉ\nphép', AppColors.primaryLight),
       (Icons.access_time_rounded, 'Đăng ký\nOT', AppColors.warning),
@@ -206,7 +207,7 @@ class EssHomeScreen extends StatelessWidget {
               return Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: () {},
+                  onTap: () => showHrmSuccessSnackbar(context, 'Đang mở ${a.$2.replaceAll('\n', ' ')}...'),
                   borderRadius: BorderRadius.circular(14),
                   child: Container(
                     decoration: BoxDecoration(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/user_avatar.dart';
+import '../../../core/widgets/interactive_overlays.dart';
 import '../../../data/mock/project_data.dart';
 
 /// ============================================================================
@@ -147,7 +148,7 @@ class TaskDetailDrawer extends StatelessWidget {
                 const SizedBox(width: 8),
                 Container(
                   decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(8)),
-                  child: IconButton(icon: const Icon(Icons.send_rounded, color: Colors.white, size: 18), onPressed: () {}),
+                  child: IconButton(icon: const Icon(Icons.send_rounded, color: Colors.white, size: 18), onPressed: () => showHrmSuccessSnackbar(context, 'Đã gửi bình luận')),
                 ),
               ],
             ),
