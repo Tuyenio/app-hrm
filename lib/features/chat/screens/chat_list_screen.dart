@@ -298,7 +298,12 @@ class _ChatListScreenState extends State<ChatListScreen> {
   }
 
   // ── CREATE GROUP CHAT SHEET ─────────────────────────────────────────────
+  /// UPDATED: selectedUsers moved outside StatefulBuilder so it persists.
+  /// Added visual counter showing "X đã chọn".
   void _showCreateGroupSheet(BuildContext context) {
+    // State lives outside StatefulBuilder to persist across rebuilds
+    final selectedUsers = <String>{};
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -311,13 +316,31 @@ class _ChatListScreenState extends State<ChatListScreen> {
           decoration: const BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
           child: StatefulBuilder(
             builder: (context, setModalState) {
-              final selectedUsers = <String>{};
               return Column(children: [
                 Center(child: Container(margin: const EdgeInsets.only(top: 10), width: 40, height: 4, decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(2)))),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
                   child: Row(children: [
                     Text('Tạo nhóm chat', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18)),
+                    if (selectedUsers.isNotEmpty) ...[
+                      const SizedBox(width: 8),
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          '${selectedUsers.length} đã chọn',
+                          style: AppTextStyles.labelSmall.copyWith(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
                     const Spacer(),
                     IconButton(icon: const Icon(Icons.close_rounded), onPressed: () => Navigator.pop(context)),
                   ]),
@@ -344,6 +367,30 @@ class _ChatListScreenState extends State<ChatListScreen> {
                     ),
                   ),
                 ),
+                // Selected users chips
+                if (selectedUsers.isNotEmpty)
+                  Container(
+                    height: 44,
+                    padding: const EdgeInsets.only(top: 8),
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      children: selectedUsers.map((uid) {
+                        final emp = mockEmployeeList.firstWhere((e) => e.id == uid);
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 6),
+                          child: Chip(
+                            avatar: UserAvatar(initials: emp.avatar, size: 24),
+                            label: Text(emp.name.split(' ').last, style: AppTextStyles.labelSmall.copyWith(fontSize: 11, color: AppColors.textPrimary)),
+                            deleteIcon: const Icon(Icons.close_rounded, size: 14),
+                            onDeleted: () => setModalState(() => selectedUsers.remove(uid)),
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            visualDensity: VisualDensity.compact,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
                 const SizedBox(height: 8),
                 Expanded(
                   child: ListView.builder(
@@ -356,10 +403,29 @@ class _ChatListScreenState extends State<ChatListScreen> {
                       return CheckboxListTile(
                         value: isChecked,
                         onChanged: (v) => setModalState(() => v == true ? selectedUsers.add(emp.id) : selectedUsers.remove(emp.id)),
-                        title: Text(emp.name, style: AppTextStyles.titleSmall),
+                        title: Text(emp.name, style: AppTextStyles.titleSmall.copyWith(
+                          fontWeight: isChecked ? FontWeight.w700 : FontWeight.w500,
+                        )),
                         subtitle: Text(emp.position, style: AppTextStyles.bodySmall.copyWith(fontSize: 11)),
-                        secondary: UserAvatar(initials: emp.avatar, size: 36),
+                        secondary: Stack(
+                          children: [
+                            UserAvatar(initials: emp.avatar, size: 36),
+                            if (isChecked)
+                              Positioned(
+                                right: -2, bottom: -2,
+                                child: Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: const BoxDecoration(
+                                    color: AppColors.success,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.check_rounded, size: 10, color: Colors.white),
+                                ),
+                              ),
+                          ],
+                        ),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        tileColor: isChecked ? AppColors.primarySurface.withValues(alpha: 0.5) : null,
                         controlAffinity: ListTileControlAffinity.trailing,
                       );
                     },
@@ -370,8 +436,11 @@ class _ChatListScreenState extends State<ChatListScreen> {
                   child: SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () { Navigator.pop(context); showHrmSuccessSnackbar(context, 'Đã tạo nhóm chat mới'); },
-                      child: const Text('Tạo nhóm'),
+                      onPressed: selectedUsers.isEmpty ? null : () {
+                        Navigator.pop(context);
+                        showHrmSuccessSnackbar(context, 'Đã tạo nhóm chat với ${selectedUsers.length} thành viên');
+                      },
+                      child: Text(selectedUsers.isEmpty ? 'Chọn thành viên' : 'Tạo nhóm (${selectedUsers.length})'),
                     ),
                   ),
                 ),

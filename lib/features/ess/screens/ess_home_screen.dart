@@ -8,10 +8,16 @@ import '../../../data/mock/employee_data.dart';
 /// ============================================================================
 /// ESS HOME SCREEN - Cổng nhân viên (Mobile-first)
 /// Thiết kế consumer-grade, friendly, modern.
+/// UPDATED: StatefulWidget, task tap navigation, InkWell ripple effects.
 /// ============================================================================
-class EssHomeScreen extends StatelessWidget {
+class EssHomeScreen extends StatefulWidget {
   const EssHomeScreen({super.key});
 
+  @override
+  State<EssHomeScreen> createState() => _EssHomeScreenState();
+}
+
+class _EssHomeScreenState extends State<EssHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,7 +34,7 @@ class EssHomeScreen extends StatelessWidget {
               // ── Quick Actions Grid ──────────────────────────────────
               _buildQuickActions(context),
               // ── My Tasks Today ──────────────────────────────────────
-              _buildMyTasks(),
+              _buildMyTasks(context),
               // ── E-Payslip ───────────────────────────────────────────
               _buildPayslip(context),
               const SizedBox(height: 24),
@@ -255,6 +261,7 @@ class EssHomeScreen extends StatelessWidget {
                 child: InkWell(
                   onTap: () => showHrmSuccessSnackbar(context, 'Đang mở ${a.$2.replaceAll('\n', ' ')}...'),
                   borderRadius: BorderRadius.circular(14),
+                  splashColor: a.$3.withValues(alpha: 0.15),
                   child: Container(
                     decoration: BoxDecoration(
                       color: AppColors.surface,
@@ -283,7 +290,8 @@ class EssHomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMyTasks() {
+  /// UPDATED: Tasks are now tappable and navigate to detail view
+  Widget _buildMyTasks(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       child: Column(
@@ -297,57 +305,270 @@ class EssHomeScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          ...mockEssTasks.map((task) => Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: task.isOverdue ? AppColors.error.withValues(alpha: 0.3) : AppColors.borderLight),
-            ),
-            child: Row(
-              children: [
-                // Progress circle
-                SizedBox(
-                  width: 40, height: 40,
-                  child: Stack(
-                    alignment: Alignment.center,
+          ...List.generate(mockEssTasks.length, (index) {
+            final task = mockEssTasks[index];
+            return Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => _showEssTaskDetail(context, task),
+                borderRadius: BorderRadius.circular(12),
+                splashColor: AppColors.primary.withValues(alpha: 0.08),
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: task.isOverdue ? AppColors.error.withValues(alpha: 0.3) : AppColors.borderLight),
+                  ),
+                  child: Row(
                     children: [
-                      CircularProgressIndicator(
-                        value: task.progress,
-                        strokeWidth: 3,
-                        backgroundColor: AppColors.surfaceVariant,
-                        valueColor: AlwaysStoppedAnimation(task.isOverdue ? AppColors.error : AppColors.primaryLight),
+                      // Progress circle
+                      SizedBox(
+                        width: 40, height: 40,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            CircularProgressIndicator(
+                              value: task.progress,
+                              strokeWidth: 3,
+                              backgroundColor: AppColors.surfaceVariant,
+                              valueColor: AlwaysStoppedAnimation(task.isOverdue ? AppColors.error : AppColors.primaryLight),
+                            ),
+                            Text('${(task.progress * 100).toInt()}%', style: AppTextStyles.labelSmall.copyWith(fontSize: 9, fontWeight: FontWeight.w700)),
+                          ],
+                        ),
                       ),
-                      Text('${(task.progress * 100).toInt()}%', style: AppTextStyles.labelSmall.copyWith(fontSize: 9, fontWeight: FontWeight.w700)),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(task.title, style: AppTextStyles.titleSmall.copyWith(fontSize: 13)),
+                            const SizedBox(height: 2),
+                            Text(task.project, style: AppTextStyles.bodySmall.copyWith(fontSize: 11)),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: task.isOverdue ? AppColors.errorLight : AppColors.surfaceVariant,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(task.dueDate, style: AppTextStyles.labelSmall.copyWith(
+                          color: task.isOverdue ? AppColors.error : AppColors.textSecondary,
+                          fontWeight: FontWeight.w600, fontSize: 10,
+                        )),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(Icons.chevron_right_rounded, size: 18, color: AppColors.textTertiary),
                     ],
                   ),
                 ),
-                const SizedBox(width: 14),
-                Expanded(
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  /// ESS Task Detail bottom sheet - provides detailed view of a specific task
+  void _showEssTaskDetail(BuildContext context, EssTask task) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        maxChildSize: 0.9,
+        minChildSize: 0.4,
+        builder: (context, scrollController) => Container(
+          decoration: const BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Column(
+            children: [
+              // Handle bar
+              Center(
+                child: Container(
+                  margin: const EdgeInsets.only(top: 10),
+                  width: 40, height: 4,
+                  decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(2)),
+                ),
+              ),
+              // Header
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: (task.isOverdue ? AppColors.error : AppColors.primary).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        task.isOverdue ? Icons.warning_rounded : Icons.task_alt_rounded,
+                        color: task.isOverdue ? AppColors.error : AppColors.primary,
+                        size: 22,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Chi tiết công việc', style: AppTextStyles.headlineSmall.copyWith(fontSize: 16)),
+                          Text(task.project, style: AppTextStyles.bodySmall.copyWith(fontSize: 11)),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded, size: 20),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
+              // Content
+              Expanded(
+                child: SingleChildScrollView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.all(20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(task.title, style: AppTextStyles.titleSmall.copyWith(fontSize: 13)),
-                      const SizedBox(height: 2),
-                      Text(task.project, style: AppTextStyles.bodySmall.copyWith(fontSize: 11)),
+                      // Title
+                      Text(task.title, style: AppTextStyles.headlineMedium.copyWith(fontSize: 18)),
+                      const SizedBox(height: 16),
+                      // Status chips
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: task.isOverdue ? AppColors.errorLight : AppColors.successLight,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              task.isOverdue ? 'Quá hạn' : 'Đúng tiến độ',
+                              style: AppTextStyles.labelSmall.copyWith(
+                                color: task.isOverdue ? AppColors.error : AppColors.success,
+                                fontWeight: FontWeight.w600, fontSize: 11,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceVariant,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              task.dueDate,
+                              style: AppTextStyles.labelSmall.copyWith(
+                                fontWeight: FontWeight.w600, fontSize: 11,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      // Progress
+                      Text('Tiến độ hoàn thành', style: AppTextStyles.titleSmall.copyWith(color: AppColors.textSecondary)),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(6),
+                              child: LinearProgressIndicator(
+                                value: task.progress,
+                                backgroundColor: AppColors.surfaceVariant,
+                                valueColor: AlwaysStoppedAnimation(
+                                  task.isOverdue ? AppColors.error : AppColors.primaryLight,
+                                ),
+                                minHeight: 10,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            '${(task.progress * 100).toInt()}%',
+                            style: AppTextStyles.titleSmall.copyWith(fontWeight: FontWeight.w700),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      const Divider(),
+                      const SizedBox(height: 16),
+                      // Info rows
+                      _detailRow(Icons.folder_outlined, 'Dự án', task.project),
+                      _detailRow(Icons.calendar_today_rounded, 'Hạn chót', task.dueDate),
+                      _detailRow(Icons.person_outline_rounded, 'Phụ trách', currentUser.name),
+                      _detailRow(Icons.business_rounded, 'Phòng ban', currentUser.department),
+                      const SizedBox(height: 24),
+                      const Divider(),
+                      const SizedBox(height: 16),
+                      // Action buttons
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                showHrmSuccessSnackbar(context, 'Đang cập nhật tiến độ...');
+                              },
+                              icon: const Icon(Icons.edit_rounded, size: 16),
+                              label: const Text('Cập nhật'),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                showHrmSuccessSnackbar(context, 'Đã đánh dấu hoàn thành ✅');
+                              },
+                              icon: const Icon(Icons.check_rounded, size: 16),
+                              label: const Text('Hoàn thành'),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: task.isOverdue ? AppColors.errorLight : AppColors.surfaceVariant,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(task.dueDate, style: AppTextStyles.labelSmall.copyWith(
-                    color: task.isOverdue ? AppColors.error : AppColors.textSecondary,
-                    fontWeight: FontWeight.w600, fontSize: 10,
-                  )),
-                ),
-              ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _detailRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: AppColors.textTertiary),
+          const SizedBox(width: 10),
+          SizedBox(
+            width: 80,
+            child: Text(label, style: AppTextStyles.bodySmall),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w500),
             ),
-          )),
+          ),
         ],
       ),
     );

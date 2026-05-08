@@ -10,15 +10,20 @@ import '../widgets/revenue_chart.dart';
 /// ============================================================================
 /// DASHBOARD SCREEN - Executive BI Dashboard
 /// Mobile-first: Cuộn dọc single-column trên mobile, 2-column trên desktop.
+/// UPDATED: StatefulWidget cho interactive filters.
 /// ============================================================================
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 768;
     return Scaffold(
-      backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(child: _buildHeader(context, isMobile)),
@@ -304,7 +309,12 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
+  /// Dashboard filter bottom sheet - NOW FULLY INTERACTIVE
   void _showDashboardFilter(BuildContext context) {
+    // State managed outside StatefulBuilder so it persists
+    String selectedTime = 'Hôm nay';
+    String selectedDept = 'Tất cả';
+
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.surface,
@@ -324,24 +334,38 @@ class DashboardScreen extends StatelessWidget {
                 Text('Khoảng thời gian', style: AppTextStyles.labelLarge),
                 const SizedBox(height: 8),
                 Wrap(spacing: 8, runSpacing: 8, children: [
-                  _filterChip('Hôm nay', true), _filterChip('Tuần này', false),
-                  _filterChip('Tháng này', false), _filterChip('Quý này', false),
-                  _filterChip('Tùy chỉnh', false),
+                  for (final label in ['Hôm nay', 'Tuần này', 'Tháng này', 'Quý này', 'Tùy chỉnh'])
+                    _interactiveFilterChip(
+                      label,
+                      label == selectedTime,
+                      () => setModalState(() => selectedTime = label),
+                    ),
                 ]),
                 const SizedBox(height: 16),
                 Text('Phòng ban', style: AppTextStyles.labelLarge),
                 const SizedBox(height: 8),
                 Wrap(spacing: 8, runSpacing: 8, children: [
-                  _filterChip('Tất cả', true), _filterChip('IT', false),
-                  _filterChip('HR', false), _filterChip('Sales', false),
-                  _filterChip('Design', false),
+                  for (final label in ['Tất cả', 'IT', 'HR', 'Sales', 'Design'])
+                    _interactiveFilterChip(
+                      label,
+                      label == selectedDept,
+                      () => setModalState(() => selectedDept = label),
+                    ),
                 ]),
                 const SizedBox(height: 20),
                 Row(children: [
-                  Expanded(child: OutlinedButton(onPressed: () => Navigator.pop(ctx), child: const Text('Đặt lại'))),
+                  Expanded(child: OutlinedButton(
+                    onPressed: () {
+                      setModalState(() {
+                        selectedTime = 'Hôm nay';
+                        selectedDept = 'Tất cả';
+                      });
+                    },
+                    child: const Text('Đặt lại'),
+                  )),
                   const SizedBox(width: 12),
                   Expanded(child: ElevatedButton(
-                    onPressed: () { Navigator.pop(ctx); showHrmSuccessSnackbar(context, 'Đã áp dụng bộ lọc'); },
+                    onPressed: () { Navigator.pop(ctx); showHrmSuccessSnackbar(context, 'Đã áp dụng: $selectedTime • $selectedDept'); },
                     child: const Text('Áp dụng'),
                   )),
                 ]),
@@ -354,18 +378,28 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _filterChip(String label, bool selected) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration: BoxDecoration(
-        color: selected ? AppColors.primary : AppColors.surfaceVariant,
+  /// Interactive filter chip with tap feedback
+  Widget _interactiveFilterChip(String label, bool selected, VoidCallback onTap) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(20),
-        border: selected ? null : Border.all(color: AppColors.borderLight),
+        splashColor: AppColors.primary.withValues(alpha: 0.15),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            color: selected ? AppColors.primary : AppColors.surfaceVariant,
+            borderRadius: BorderRadius.circular(20),
+            border: selected ? null : Border.all(color: AppColors.borderLight),
+          ),
+          child: Text(label, style: AppTextStyles.labelMedium.copyWith(
+            color: selected ? Colors.white : AppColors.textSecondary,
+            fontWeight: selected ? FontWeight.w600 : FontWeight.w400, fontSize: 12,
+          )),
+        ),
       ),
-      child: Text(label, style: AppTextStyles.labelMedium.copyWith(
-        color: selected ? Colors.white : AppColors.textSecondary,
-        fontWeight: selected ? FontWeight.w600 : FontWeight.w400, fontSize: 12,
-      )),
     );
   }
 }

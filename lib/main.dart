@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/app_colors.dart';
 import 'core/theme/app_text_styles.dart';
+import 'core/theme/theme_provider.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'features/navigation/side_navigation.dart';
 import 'features/dashboard/screens/dashboard_screen.dart';
@@ -11,12 +12,17 @@ import 'features/employees/screens/employee_list_screen.dart';
 import 'features/performance/screens/performance_screen.dart';
 import 'features/ess/screens/ess_home_screen.dart';
 import 'features/chat/screens/chat_list_screen.dart';
+import 'features/departments/screens/department_management_screen.dart';
+import 'features/settings/screens/system_settings_screen.dart';
 
 /// ============================================================================
 /// ICS HRM - ENTERPRISE SUITE
 /// Entry point chính của hệ thống Quản trị Nhân sự Doanh nghiệp.
 /// Tích hợp Auth flow + MainShell (Admin + ESS).
 /// ============================================================================
+
+final ThemeNotifier _themeNotifier = ThemeNotifier();
+
 void main() {
   runApp(const HrmApp());
 }
@@ -26,11 +32,21 @@ class HrmApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'ICS HRM - Enterprise Suite',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      home: const SplashGate(),
+    return ThemeProvider(
+      notifier: _themeNotifier,
+      child: ValueListenableBuilder<ThemeState>(
+        valueListenable: _themeNotifier,
+        builder: (context, themeState, _) {
+          return MaterialApp(
+            title: 'ICS HRM - Enterprise Suite',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.buildTheme(Brightness.light, themeState.accent),
+            darkTheme: AppTheme.buildTheme(Brightness.dark, themeState.accent),
+            themeMode: themeState.themeMode,
+            home: const SplashGate(),
+          );
+        },
+      ),
     );
   }
 }
@@ -195,15 +211,17 @@ class _MainShellState extends State<MainShell> {
   int _selectedIndex = 0;
   bool _sidebarCollapsed = false;
 
-  // 7 screens tương ứng navigation
+  // 9 screens tương ứng navigation
   static const List<Widget> _screens = [
     DashboardScreen(), // 0: Dashboard
     TaskWorkspaceScreen(), // 1: Dự án & Công việc
     SecurityMatrixScreen(), // 2: Phân quyền
     EmployeeListScreen(), // 3: Nhân sự
     PerformanceScreen(), // 4: Hiệu suất
-    EssHomeScreen(), // 5: Cổng NV (ESS)
-    ChatListScreen(), // 6: Chat
+    DepartmentManagementScreen(), // 5: Phòng ban
+    SystemSettingsScreen(), // 6: Cài đặt
+    EssHomeScreen(), // 7: Cổng NV (ESS)
+    ChatListScreen(), // 8: Chat
   ];
 
   @override
@@ -408,7 +426,7 @@ class _MainShellState extends State<MainShell> {
                     ),
                   ),
                   // Badge cho Chat
-                  if (index == 6)
+                  if (index == 8)
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 7,
@@ -441,17 +459,20 @@ class _MainShellState extends State<MainShell> {
     final mobileItems = [
       (0, Icons.dashboard_outlined, Icons.dashboard_rounded, 'Home'),
       (1, Icons.task_alt_outlined, Icons.task_alt_rounded, 'Dự án'),
-      (5, Icons.person_outline_rounded, Icons.person_rounded, 'ESS'),
-      (6, Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, 'Chat'),
+      (7, Icons.person_outline_rounded, Icons.person_rounded, 'ESS'),
+      (8, Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, 'Chat'),
     ];
+
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.divider)),
+        color: theme.colorScheme.surface,
+        border: Border(top: BorderSide(color: isDark ? const Color(0xFF30363D) : AppColors.divider)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -470,7 +491,7 @@ class _MainShellState extends State<MainShell> {
                   isSelected ? item.$3 : item.$2,
                   item.$4,
                   isSelected,
-                  item.$1 == 6,
+                  item.$1 == 8,
                 );
               }),
               // More button
@@ -489,6 +510,9 @@ class _MainShellState extends State<MainShell> {
     bool isSelected,
     bool showBadge,
   ) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.colorScheme.primary;
+    final unselected = theme.brightness == Brightness.dark ? const Color(0xFF6E7681) : AppColors.textTertiary;
     return InkWell(
       onTap: () => setState(() => _selectedIndex = index),
       borderRadius: BorderRadius.circular(12),
@@ -496,7 +520,7 @@ class _MainShellState extends State<MainShell> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primarySurface : Colors.transparent,
+          color: isSelected ? primaryColor.withValues(alpha: 0.12) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -504,35 +528,18 @@ class _MainShellState extends State<MainShell> {
           children: [
             Stack(
               children: [
-                Icon(
-                  icon,
-                  size: 22,
-                  color: isSelected
-                      ? AppColors.primary
-                      : AppColors.textTertiary,
-                ),
+                Icon(icon, size: 22, color: isSelected ? primaryColor : unselected),
                 if (showBadge)
                   Positioned(
-                    right: -4,
-                    top: -2,
+                    right: -4, top: -2,
                     child: Container(
                       padding: const EdgeInsets.all(3),
                       decoration: BoxDecoration(
                         color: AppColors.error,
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color: AppColors.surface,
-                          width: 1.5,
-                        ),
+                        border: Border.all(color: theme.colorScheme.surface, width: 1.5),
                       ),
-                      child: const Text(
-                        '4',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 8,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
+                      child: const Text('4', style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w700)),
                     ),
                   ),
               ],
@@ -541,7 +548,7 @@ class _MainShellState extends State<MainShell> {
             Text(
               label,
               style: AppTextStyles.labelSmall.copyWith(
-                color: isSelected ? AppColors.primary : AppColors.textTertiary,
+                color: isSelected ? primaryColor : unselected,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                 fontSize: 10,
               ),
@@ -554,7 +561,7 @@ class _MainShellState extends State<MainShell> {
 
   Widget _buildMoreButton() {
     final isMoreSelected =
-        _selectedIndex == 2 || _selectedIndex == 3 || _selectedIndex == 4;
+        _selectedIndex == 2 || _selectedIndex == 3 || _selectedIndex == 4 || _selectedIndex == 5 || _selectedIndex == 6;
     return InkWell(
       onTap: () => _showMoreMenu(),
       borderRadius: BorderRadius.circular(12),
@@ -562,7 +569,7 @@ class _MainShellState extends State<MainShell> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isMoreSelected ? AppColors.primarySurface : Colors.transparent,
+          color: isMoreSelected ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.12) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -572,16 +579,16 @@ class _MainShellState extends State<MainShell> {
               Icons.more_horiz_rounded,
               size: 22,
               color: isMoreSelected
-                  ? AppColors.primary
-                  : AppColors.textTertiary,
+                  ? Theme.of(context).colorScheme.primary
+                  : (Theme.of(context).brightness == Brightness.dark ? const Color(0xFF6E7681) : AppColors.textTertiary),
             ),
             const SizedBox(height: 2),
             Text(
               'Thêm',
               style: AppTextStyles.labelSmall.copyWith(
                 color: isMoreSelected
-                    ? AppColors.primary
-                    : AppColors.textTertiary,
+                    ? Theme.of(context).colorScheme.primary
+                    : (Theme.of(context).brightness == Brightness.dark ? const Color(0xFF6E7681) : AppColors.textTertiary),
                 fontWeight: isMoreSelected ? FontWeight.w600 : FontWeight.w400,
                 fontSize: 10,
               ),
@@ -595,63 +602,83 @@ class _MainShellState extends State<MainShell> {
   void _showMoreMenu() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.divider,
-                  borderRadius: BorderRadius.circular(2),
+      isScrollControlled: true,
+      builder: (context) => SafeArea(
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.7,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppColors.divider,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(height: 16),
+                Text(
+                  'Quản trị',
+                  style: AppTextStyles.headlineSmall.copyWith(fontSize: 18),
+                ),
+                const SizedBox(height: 12),
+                _moreMenuItem(
+                  2,
+                  Icons.admin_panel_settings_rounded,
+                  'Phân quyền',
+                  'Ma trận quyền hệ thống',
+                ),
+                _moreMenuItem(
+                  3,
+                  Icons.people_rounded,
+                  'Nhân sự',
+                  'Quản lý hồ sơ nhân viên',
+                ),
+                _moreMenuItem(
+                  4,
+                  Icons.assessment_rounded,
+                  'Hiệu suất',
+                  'KPIs, OKRs & đánh giá',
+                ),
+                _moreMenuItem(
+                  5,
+                  Icons.business_rounded,
+                  'Phòng ban',
+                  'Quản lý cơ cấu tổ chức',
+                ),
+                _moreMenuItem(
+                  6,
+                  Icons.settings_rounded,
+                  'Cài đặt',
+                  'Cấu hình hệ thống',
+                ),
+                const Divider(height: 20),
+                _moreMenuItem(
+                  -1,
+                  Icons.logout_rounded,
+                  'Đăng xuất',
+                  'Thoát khỏi hệ thống',
+                  color: AppColors.error,
+                  onTap: () {
+                    Navigator.pop(context);
+                    widget.onLogout();
+                  },
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            Text(
-              'Quản trị',
-              style: AppTextStyles.headlineSmall.copyWith(fontSize: 18),
-            ),
-            const SizedBox(height: 12),
-            _moreMenuItem(
-              2,
-              Icons.admin_panel_settings_rounded,
-              'Phân quyền',
-              'Ma trận quyền hệ thống',
-            ),
-            _moreMenuItem(
-              3,
-              Icons.people_rounded,
-              'Nhân sự',
-              'Quản lý hồ sơ nhân viên',
-            ),
-            _moreMenuItem(
-              4,
-              Icons.assessment_rounded,
-              'Hiệu suất',
-              'KPIs, OKRs & đánh giá',
-            ),
-            const Divider(height: 20),
-            _moreMenuItem(
-              -1,
-              Icons.logout_rounded,
-              'Đăng xuất',
-              'Thoát khỏi hệ thống',
-              color: AppColors.error,
-              onTap: () {
-                Navigator.pop(context);
-                widget.onLogout();
-              },
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -732,6 +759,16 @@ class _MainShellState extends State<MainShell> {
       label: 'Hiệu suất',
       icon: Icons.assessment_outlined,
       activeIcon: Icons.assessment_rounded,
+    ),
+    NavItem(
+      label: 'Phòng ban',
+      icon: Icons.business_outlined,
+      activeIcon: Icons.business_rounded,
+    ),
+    NavItem(
+      label: 'Cài đặt',
+      icon: Icons.settings_outlined,
+      activeIcon: Icons.settings_rounded,
     ),
     NavItem(
       label: 'Cổng NV (ESS)',

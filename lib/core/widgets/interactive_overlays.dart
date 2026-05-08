@@ -6,6 +6,7 @@ import 'user_avatar.dart';
 /// ============================================================================
 /// HRM INTERACTIVE OVERLAYS - Shared overlay components
 /// Notification Center, Confirm Dialog, Context Menu, etc.
+/// UPDATED: Stateful notification center, mark-all-read without closing.
 /// ============================================================================
 
 // ── NOTIFICATION DATA ────────────────────────────────────────────────────────
@@ -29,6 +30,9 @@ const List<HrmNotification> _mockNotifications = [
 ];
 
 // ── 1. NOTIFICATION CENTER ───────────────────────────────────────────────────
+/// UPDATED: Stateful notification center
+/// - "Đọc tất cả" marks all as read WITHOUT closing the sheet
+/// - Individual notification tap marks it as read WITHOUT closing
 void showNotificationCenter(BuildContext context) {
   showModalBottomSheet(
     context: context,
@@ -38,53 +42,112 @@ void showNotificationCenter(BuildContext context) {
       initialChildSize: 0.75,
       maxChildSize: 0.95,
       minChildSize: 0.4,
-      builder: (context, scrollController) => Container(
-        decoration: const BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Column(
-          children: [
-            _handleBar(),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
-              child: Row(
+      builder: (context, scrollController) {
+        // Stateful read tracking
+        final readStates = List<bool>.generate(
+          _mockNotifications.length,
+          (i) => _mockNotifications[i].isRead,
+        );
+
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            final unreadCount = readStates.where((r) => !r).length;
+            return Container(
+              decoration: const BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: Column(
                 children: [
-                  const Icon(Icons.notifications_rounded, size: 22, color: AppColors.primary),
-                  const SizedBox(width: 8),
-                  Text('Thông báo', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18)),
-                  const Spacer(),
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text('Đọc tất cả', style: AppTextStyles.labelMedium.copyWith(color: AppColors.primaryLight)),
+                  _handleBar(),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.notifications_rounded, size: 22, color: AppColors.primary),
+                        const SizedBox(width: 8),
+                        Text('Thông báo', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18)),
+                        if (unreadCount > 0) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppColors.error,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              '$unreadCount',
+                              style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                        ],
+                        const Spacer(),
+                        TextButton.icon(
+                          onPressed: unreadCount > 0
+                              ? () {
+                                  setSheetState(() {
+                                    for (int i = 0; i < readStates.length; i++) {
+                                      readStates[i] = true;
+                                    }
+                                  });
+                                }
+                              : null,
+                          icon: Icon(
+                            unreadCount > 0 ? Icons.done_all_rounded : Icons.check_circle_rounded,
+                            size: 16,
+                          ),
+                          label: Text(
+                            unreadCount > 0 ? 'Đọc tất cả' : 'Đã đọc hết',
+                            style: AppTextStyles.labelMedium.copyWith(
+                              color: unreadCount > 0 ? AppColors.primaryLight : AppColors.success,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Divider(height: 1),
+                  Expanded(
+                    child: ListView.builder(
+                      controller: scrollController,
+                      itemCount: _mockNotifications.length,
+                      itemBuilder: (context, i) {
+                        final n = _mockNotifications[i];
+                        final isRead = readStates[i];
+                        return _buildStatefulNotificationTile(
+                          n,
+                          isRead,
+                          () {
+                            if (!isRead) {
+                              setSheetState(() => readStates[i] = true);
+                            }
+                          },
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),
-            ),
-            const Divider(height: 1),
-            Expanded(
-              child: ListView.builder(
-                controller: scrollController,
-                itemCount: _mockNotifications.length,
-                itemBuilder: (context, i) {
-                  final n = _mockNotifications[i];
-                  return _notificationTile(context, n);
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
+            );
+          },
+        );
+      },
     ),
   );
 }
 
-Widget _notificationTile(BuildContext context, HrmNotification n) {
+Widget _buildStatefulNotificationTile(
+  HrmNotification n,
+  bool isRead,
+  VoidCallback onMarkRead,
+) {
   return Material(
-    color: n.isRead ? Colors.transparent : AppColors.primarySurface.withValues(alpha: 0.4),
+    color: isRead ? Colors.transparent : AppColors.primarySurface.withValues(alpha: 0.4),
     child: InkWell(
-      onTap: () => Navigator.pop(context),
-      child: Container(
+      onTap: onMarkRead,
+      splashColor: AppColors.primary.withValues(alpha: 0.08),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         decoration: BoxDecoration(
           border: Border(bottom: BorderSide(color: AppColors.divider.withValues(alpha: 0.4))),
@@ -102,7 +165,7 @@ Widget _notificationTile(BuildContext context, HrmNotification n) {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(n.title, style: AppTextStyles.titleSmall.copyWith(fontWeight: n.isRead ? FontWeight.w500 : FontWeight.w700, fontSize: 13)),
+                  Text(n.title, style: AppTextStyles.titleSmall.copyWith(fontWeight: isRead ? FontWeight.w500 : FontWeight.w700, fontSize: 13)),
                   const SizedBox(height: 2),
                   Text(n.subtitle, style: AppTextStyles.bodySmall.copyWith(fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 4),
@@ -110,12 +173,22 @@ Widget _notificationTile(BuildContext context, HrmNotification n) {
                 ],
               ),
             ),
-            if (!n.isRead)
-              Container(
-                margin: const EdgeInsets.only(top: 6),
-                width: 8, height: 8,
-                decoration: const BoxDecoration(color: AppColors.primaryLight, shape: BoxShape.circle),
-              ),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: !isRead
+                  ? Container(
+                      key: const ValueKey('unread'),
+                      margin: const EdgeInsets.only(top: 6),
+                      width: 8, height: 8,
+                      decoration: const BoxDecoration(color: AppColors.primaryLight, shape: BoxShape.circle),
+                    )
+                  : Icon(
+                      Icons.check_rounded,
+                      key: const ValueKey('read'),
+                      size: 16,
+                      color: AppColors.success.withValues(alpha: 0.6),
+                    ),
+            ),
           ],
         ),
       ),
