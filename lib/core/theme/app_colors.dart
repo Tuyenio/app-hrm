@@ -89,9 +89,7 @@ class AppColors {
       accent = accentPresets[0]; // Default blue
     }
 
-    return isDark
-        ? _DynamicColors.dark(accent)
-        : _DynamicColors.light(accent);
+    return isDark ? _DynamicColors.dark(accent) : _DynamicColors.light(accent);
   }
 }
 

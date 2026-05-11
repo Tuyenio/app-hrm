@@ -353,11 +353,7 @@ class _MainShellState extends State<MainShell> {
                   ),
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.logout_rounded,
-                        color: colors.error,
-                        size: 20,
-                      ),
+                      Icon(Icons.logout_rounded, color: colors.error, size: 20),
                       if (!_sidebarCollapsed) ...[
                         const SizedBox(width: 14),
                         Expanded(
@@ -400,9 +396,7 @@ class _MainShellState extends State<MainShell> {
               vertical: 11,
             ),
             decoration: BoxDecoration(
-              color: isSelected
-                  ? colors.sidebarItemActive
-                  : Colors.transparent,
+              color: isSelected ? colors.sidebarItemActive : Colors.transparent,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
@@ -418,9 +412,7 @@ class _MainShellState extends State<MainShell> {
                     child: Text(
                       item.label,
                       style: AppTextStyles.titleSmall.copyWith(
-                        color: isSelected
-                            ? Colors.white
-                            : colors.sidebarText,
+                        color: isSelected ? Colors.white : colors.sidebarText,
                         fontWeight: isSelected
                             ? FontWeight.w600
                             : FontWeight.w400,
@@ -525,7 +517,9 @@ class _MainShellState extends State<MainShell> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? primaryColor.withValues(alpha: 0.12) : Colors.transparent,
+          color: isSelected
+              ? primaryColor.withValues(alpha: 0.12)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -533,10 +527,15 @@ class _MainShellState extends State<MainShell> {
           children: [
             Stack(
               children: [
-                Icon(icon, size: 22, color: isSelected ? primaryColor : unselected),
+                Icon(
+                  icon,
+                  size: 22,
+                  color: isSelected ? primaryColor : unselected,
+                ),
                 if (showBadge)
                   Positioned(
-                    right: -4, top: -2,
+                    right: -4,
+                    top: -2,
                     child: Container(
                       padding: const EdgeInsets.all(3),
                       decoration: BoxDecoration(
@@ -544,7 +543,14 @@ class _MainShellState extends State<MainShell> {
                         shape: BoxShape.circle,
                         border: Border.all(color: colors.surface, width: 1.5),
                       ),
-                      child: const Text('4', style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w700)),
+                      child: const Text(
+                        '4',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 8,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
                   ),
               ],
@@ -566,7 +572,11 @@ class _MainShellState extends State<MainShell> {
 
   Widget _buildMoreButton() {
     final isMoreSelected =
-        _selectedIndex == 2 || _selectedIndex == 3 || _selectedIndex == 4 || _selectedIndex == 5 || _selectedIndex == 6;
+        _selectedIndex == 2 ||
+        _selectedIndex == 3 ||
+        _selectedIndex == 4 ||
+        _selectedIndex == 5 ||
+        _selectedIndex == 6;
     final colors = AppColors.of(context);
     final primaryColor = Theme.of(context).colorScheme.primary;
     return InkWell(
@@ -576,7 +586,9 @@ class _MainShellState extends State<MainShell> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isMoreSelected ? primaryColor.withValues(alpha: 0.12) : Colors.transparent,
+          color: isMoreSelected
+              ? primaryColor.withValues(alpha: 0.12)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -712,9 +724,7 @@ class _MainShellState extends State<MainShell> {
         child: Icon(
           icon,
           size: 20,
-          color:
-              color ??
-              (isSelected ? primaryColor : colors.textSecondary),
+          color: color ?? (isSelected ? primaryColor : colors.textSecondary),
         ),
       ),
       title: Text(
@@ -726,7 +736,10 @@ class _MainShellState extends State<MainShell> {
       ),
       subtitle: Text(
         sub,
-        style: AppTextStyles.bodySmall.copyWith(fontSize: 11, color: colors.textSecondary),
+        style: AppTextStyles.bodySmall.copyWith(
+          fontSize: 11,
+          color: colors.textSecondary,
+        ),
       ),
       trailing: isSelected
           ? Icon(Icons.check_rounded, color: primaryColor, size: 20)
