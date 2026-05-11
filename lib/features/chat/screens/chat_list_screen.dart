@@ -37,13 +37,14 @@ class _ChatListScreenState extends State<ChatListScreen> {
   // MOBILE LAYOUT - Full screen conversation list
   // ──────────────────────────────────────────────────────────────────────────
   Widget _buildMobileLayout() {
+    final colors = AppColors.of(context);
     return Scaffold(
-      backgroundColor: AppColors.surface,
+      backgroundColor: colors.surface,
       body: SafeArea(
         child: Column(
           children: [
             _buildHeader(),
-            const Divider(height: 1),
+            Divider(height: 1, color: colors.divider),
             Expanded(child: _buildConversationListView()),
           ],
         ),
@@ -55,24 +56,25 @@ class _ChatListScreenState extends State<ChatListScreen> {
   // DESKTOP LAYOUT - Split view
   // ──────────────────────────────────────────────────────────────────────────
   Widget _buildDesktopLayout() {
+    final colors = AppColors.of(context);
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: colors.background,
       body: Row(
         children: [
           SizedBox(
             width: 360,
             child: Container(
-              color: AppColors.surface,
+              color: colors.surface,
               child: Column(
                 children: [
                   _buildHeader(),
-                  const Divider(height: 1),
+                  Divider(height: 1, color: colors.divider),
                   Expanded(child: _buildConversationListView()),
                 ],
               ),
             ),
           ),
-          Container(width: 1, color: AppColors.divider),
+          Container(width: 1, color: colors.divider),
           Expanded(
             child: _selectedConversationId != null
                 ? ChatDetailScreen(
@@ -87,6 +89,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
   }
 
   Widget _buildHeader() {
+    final colors = AppColors.of(context);
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
       child: Column(
@@ -94,7 +97,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
         children: [
           Row(
             children: [
-              Text('Chat', style: AppTextStyles.headlineLarge.copyWith(fontSize: 22)),
+              Text('Chat', style: AppTextStyles.headlineLarge.copyWith(fontSize: 22, color: colors.textPrimary)),
               const Spacer(),
               _iconBtn(Icons.edit_square, () => _showCreateGroupSheet(context)),
               const SizedBox(width: 4),
@@ -102,23 +105,21 @@ class _ChatListScreenState extends State<ChatListScreen> {
             ],
           ),
           const SizedBox(height: 10),
-          // Search bar
           Container(
             height: 40,
-            decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(20)),
+            decoration: BoxDecoration(color: colors.surfaceVariant, borderRadius: BorderRadius.circular(20)),
             child: TextField(
-              style: AppTextStyles.bodySmall,
+              style: AppTextStyles.bodySmall.copyWith(color: colors.textPrimary),
               decoration: InputDecoration(
                 hintText: 'Tìm kiếm tin nhắn...',
-                hintStyle: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
-                prefixIcon: const Icon(Icons.search_rounded, size: 20, color: AppColors.textTertiary),
+                hintStyle: AppTextStyles.bodySmall.copyWith(color: colors.textTertiary),
+                prefixIcon: Icon(Icons.search_rounded, size: 20, color: colors.textTertiary),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(vertical: 10),
               ),
             ),
           ),
           const SizedBox(height: 10),
-          // Tabs
           Row(
             children: [
               _tab('Tất cả', 0),

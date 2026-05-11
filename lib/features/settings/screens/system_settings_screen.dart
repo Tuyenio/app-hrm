@@ -105,9 +105,7 @@ class _SystemSettingsScreenState extends State<SystemSettingsScreen>
       padding: EdgeInsets.all(isMobile ? 18 : 24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: isDark
-              ? [const Color(0xFF1C2128), const Color(0xFF161B22)]
-              : [const Color(0xFF374151), const Color(0xFF1F2937)],
+          colors: [colors.primary, colors.primaryLight],
           begin: Alignment.topLeft, end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
@@ -551,14 +549,15 @@ class _SystemSettingsScreenState extends State<SystemSettingsScreen>
   }
 
   Widget _numericField(String label, TextEditingController ctrl, String? hint) {
+    final colors = AppColors.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(children: [
         Expanded(
           flex: 3,
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(label, style: AppTextStyles.bodySmall.copyWith(fontSize: 12)),
-            if (hint != null) Text(hint, style: AppTextStyles.labelSmall.copyWith(fontSize: 9)),
+            Text(label, style: AppTextStyles.bodySmall.copyWith(fontSize: 12, color: colors.textPrimary)),
+            if (hint != null) Text(hint, style: AppTextStyles.labelSmall.copyWith(fontSize: 9, color: colors.textSecondary)),
           ]),
         ),
         const SizedBox(width: 12),
@@ -568,8 +567,8 @@ class _SystemSettingsScreenState extends State<SystemSettingsScreen>
             controller: ctrl,
             keyboardType: TextInputType.number,
             textAlign: TextAlign.center,
-            style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600),
-            decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8), isDense: true),
+            style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600, color: colors.textPrimary),
+            decoration: InputDecoration(contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8), isDense: true),
           ),
         ),
       ]),

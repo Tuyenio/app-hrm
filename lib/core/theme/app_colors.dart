@@ -101,6 +101,14 @@ class _DynamicColors {
   final Color primaryLight;
   final Color primaryDark;
   final Color primarySurface;
+  final Color success;
+  final Color successLight;
+  final Color warning;
+  final Color warningLight;
+  final Color error;
+  final Color errorLight;
+  final Color info;
+  final Color infoLight;
   final Color background;
   final Color surface;
   final Color surfaceVariant;
@@ -115,12 +123,22 @@ class _DynamicColors {
   final Color chatInputBg;
   final Color sidebarBg;
   final Color sidebarItemActive;
+  final Color sidebarText;
+  final Color sidebarDivider;
 
   const _DynamicColors({
     required this.primary,
     required this.primaryLight,
     required this.primaryDark,
     required this.primarySurface,
+    required this.success,
+    required this.successLight,
+    required this.warning,
+    required this.warningLight,
+    required this.error,
+    required this.errorLight,
+    required this.info,
+    required this.infoLight,
     required this.background,
     required this.surface,
     required this.surfaceVariant,
@@ -135,6 +153,8 @@ class _DynamicColors {
     required this.chatInputBg,
     required this.sidebarBg,
     required this.sidebarItemActive,
+    required this.sidebarText,
+    required this.sidebarDivider,
   });
 
   factory _DynamicColors.light(AccentColorPreset accent) {
@@ -143,6 +163,14 @@ class _DynamicColors {
       primaryLight: accent.primaryLight,
       primaryDark: accent.primaryDark,
       primarySurface: accent.primarySurface,
+      success: const Color(0xFF10B981),
+      successLight: const Color(0xFFD1FAE5),
+      warning: const Color(0xFFF59E0B),
+      warningLight: const Color(0xFFFEF3C7),
+      error: const Color(0xFFEF4444),
+      errorLight: const Color(0xFFFEE2E2),
+      info: const Color(0xFF3B82F6),
+      infoLight: const Color(0xFFDBEAFE),
       background: const Color(0xFFF8F9FA),
       surface: const Color(0xFFFFFFFF),
       surfaceVariant: const Color(0xFFF1F3F4),
@@ -160,6 +188,8 @@ class _DynamicColors {
         accent.primary.withValues(alpha: 0.3),
         const Color(0xFF111827),
       ),
+      sidebarText: const Color(0xFF9CA3AF),
+      sidebarDivider: const Color(0xFF374151),
     );
   }
 
@@ -172,6 +202,14 @@ class _DynamicColors {
         accent.primary.withValues(alpha: 0.15),
         const Color(0xFF1A1A2E),
       ),
+      success: const Color(0xFF10B981),
+      successLight: const Color(0xFFD1FAE5),
+      warning: const Color(0xFFF59E0B),
+      warningLight: const Color(0xFFFEF3C7),
+      error: const Color(0xFFEF4444),
+      errorLight: const Color(0xFFFEE2E2),
+      info: const Color(0xFF3B82F6),
+      infoLight: const Color(0xFFDBEAFE),
       background: const Color(0xFF0D1117),
       surface: const Color(0xFF161B22),
       surfaceVariant: const Color(0xFF21262D),
@@ -189,6 +227,8 @@ class _DynamicColors {
         accent.primaryLight.withValues(alpha: 0.2),
         const Color(0xFF010409),
       ),
+      sidebarText: const Color(0xFF8B949E),
+      sidebarDivider: const Color(0xFF30363D),
     );
   }
 }

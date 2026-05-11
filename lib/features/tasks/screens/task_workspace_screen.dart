@@ -57,8 +57,9 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
   // MOBILE LAYOUT
   // ──────────────────────────────────────────────────────────────────────────
   Widget _buildMobileLayout() {
+    final colors = AppColors.of(context);
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: colors.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -77,11 +78,12 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
   }
 
   Widget _buildMobileHeader() {
+    final colors = AppColors.of(context);
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border(bottom: BorderSide(color: AppColors.divider)),
+        color: colors.surface,
+        border: Border(bottom: BorderSide(color: colors.divider)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,12 +94,12 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
               Expanded(
                 child: Text(
                   'Quản trị Công việc',
-                  style: AppTextStyles.headlineLarge.copyWith(fontSize: 20),
+                  style: AppTextStyles.headlineLarge.copyWith(fontSize: 20, color: colors.textPrimary),
                 ),
               ),
               Container(
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceVariant,
+                  color: colors.surfaceVariant,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: IconButton(
@@ -113,7 +115,7 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
               const SizedBox(width: 6),
               Container(
                 decoration: BoxDecoration(
-                  color: AppColors.primary,
+                  color: colors.primary,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: IconButton(
@@ -135,20 +137,20 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
           const SizedBox(height: 4),
           Text(
             '${mockTasks.length} tasks • 5 dự án',
-            style: AppTextStyles.bodySmall,
+            style: AppTextStyles.bodySmall.copyWith(color: colors.textSecondary),
           ),
           const SizedBox(height: 10),
           // Search bar
           Container(
             height: 38,
-            decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(10)),
+            decoration: BoxDecoration(color: colors.surfaceVariant, borderRadius: BorderRadius.circular(10)),
             child: TextField(
               onChanged: (v) => setState(() => _searchQuery = v),
-              style: AppTextStyles.bodySmall,
+              style: AppTextStyles.bodySmall.copyWith(color: colors.textPrimary),
               decoration: InputDecoration(
                 hintText: 'Tìm kiếm công việc...',
-                hintStyle: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
-                prefixIcon: const Icon(Icons.search_rounded, size: 18, color: AppColors.textTertiary),
+                hintStyle: AppTextStyles.bodySmall.copyWith(color: colors.textTertiary),
+                prefixIcon: Icon(Icons.search_rounded, size: 18, color: colors.textTertiary),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(vertical: 10),
               ),
@@ -167,9 +169,9 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
               const SizedBox(width: 8),
               Container(
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceVariant,
+                  color: colors.surfaceVariant,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.borderLight),
+                  border: Border.all(color: colors.borderLight),
                 ),
                 child: IconButton(
                   onPressed: () => _showTaskFilterSheet(context),
@@ -552,9 +554,10 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
   }
 
   void _showMobileProjectPicker() {
+    final colors = AppColors.of(context);
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: colors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -571,7 +574,7 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.divider,
+                    color: colors.divider,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -579,7 +582,7 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
             ),
             Text(
               'Chọn dự án',
-              style: AppTextStyles.headlineSmall.copyWith(fontSize: 18),
+              style: AppTextStyles.headlineSmall.copyWith(fontSize: 18, color: colors.textPrimary),
             ),
             const SizedBox(height: 12),
             _projectOption('all', 'Tất cả công việc', Icons.grid_view_rounded),
@@ -590,10 +593,10 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
             ListTile(
               leading: Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
-                child: const Icon(Icons.add_rounded, size: 20, color: AppColors.success),
+                decoration: BoxDecoration(color: colors.success.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+                child: Icon(Icons.add_rounded, size: 20, color: colors.success),
               ),
-              title: Text('Tạo dự án mới', style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600, color: AppColors.success)),
+              title: Text('Tạo dự án mới', style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600, color: colors.success)),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               onTap: () { Navigator.pop(context); _showCreateProjectSheet(context); },
             ),
@@ -605,24 +608,25 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
 
   Widget _projectOption(String id, String name, IconData icon) {
     final isSelected = id == _selectedProjectId;
+    final colors = AppColors.of(context);
     return ListTile(
       leading: Icon(
         icon,
-        color: isSelected ? AppColors.primary : AppColors.textSecondary,
+        color: isSelected ? colors.primary : colors.textSecondary,
         size: 20,
       ),
       title: Text(
         name,
         style: AppTextStyles.bodyMedium.copyWith(
           fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-          color: isSelected ? AppColors.primary : AppColors.textPrimary,
+          color: isSelected ? colors.primary : colors.textPrimary,
         ),
       ),
       trailing: isSelected
-          ? const Icon(Icons.check_rounded, color: AppColors.primary, size: 20)
+          ? Icon(Icons.check_rounded, color: colors.primary, size: 20)
           : null,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      tileColor: isSelected ? AppColors.primarySurface : null,
+      tileColor: isSelected ? colors.primarySurface : null,
       onTap: () {
         setState(() => _selectedProjectId = id);
         Navigator.pop(context);
@@ -634,8 +638,9 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
   // DESKTOP LAYOUT
   // ──────────────────────────────────────────────────────────────────────────
   Widget _buildDesktopLayout() {
+    final colors = AppColors.of(context);
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: colors.background,
       body: Row(
         children: [
           if (_showSidebar)
@@ -693,11 +698,12 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
   }
 
   Widget _buildDesktopTopBar() {
+    final colors = AppColors.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border(bottom: BorderSide(color: AppColors.divider)),
+        color: colors.surface,
+        border: Border(bottom: BorderSide(color: colors.divider)),
       ),
       child: Row(
         children: [
@@ -708,7 +714,7 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
               size: 20,
             ),
             style: IconButton.styleFrom(
-              backgroundColor: AppColors.surfaceVariant,
+              backgroundColor: colors.surfaceVariant,
               padding: const EdgeInsets.all(8),
             ),
           ),
@@ -717,10 +723,10 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Quản trị Công việc', style: AppTextStyles.headlineSmall),
+                Text('Quản trị Công việc', style: AppTextStyles.headlineSmall.copyWith(color: colors.textPrimary)),
                 Text(
                   '${mockTasks.length} tasks • 5 dự án đang hoạt động',
-                  style: AppTextStyles.bodySmall,
+                  style: AppTextStyles.bodySmall.copyWith(color: colors.textSecondary),
                 ),
               ],
             ),
@@ -732,9 +738,9 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
           const SizedBox(width: 12),
           Container(
             decoration: BoxDecoration(
-              color: AppColors.surfaceVariant,
+              color: colors.surfaceVariant,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppColors.borderLight),
+              border: Border.all(color: colors.borderLight),
             ),
             child: IconButton(
               onPressed: () => _showTaskFilterSheet(context),
@@ -756,6 +762,7 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
 
   // ── CREATE TASK SHEET ─────────────────────────────────────────────────────
   void _showCreateTaskSheet(BuildContext context) {
+    final colors = AppColors.of(context);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -765,17 +772,16 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
         maxChildSize: 0.95,
         minChildSize: 0.5,
         builder: (context, sc) => Container(
-          decoration: const BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+          decoration: BoxDecoration(color: colors.surface, borderRadius: const BorderRadius.vertical(top: Radius.circular(20))),
           child: StatefulBuilder(
             builder: (context, setModalState) {
-              int selPriority = 1;
               return Column(
                 children: [
-                  Container(margin: const EdgeInsets.only(top: 10), width: 40, height: 4, decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(2))),
+                  Container(margin: const EdgeInsets.only(top: 10), width: 40, height: 4, decoration: BoxDecoration(color: colors.divider, borderRadius: BorderRadius.circular(2))),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
                     child: Row(children: [
-                      Text('Tạo công việc mới', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18)),
+                      Text('Tạo công việc mới', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18, color: colors.textPrimary)),
                       const Spacer(),
                       IconButton(icon: const Icon(Icons.close_rounded), onPressed: () => Navigator.pop(context)),
                     ]),
@@ -786,19 +792,19 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
                       controller: sc,
                       padding: const EdgeInsets.all(20),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Text('Tiêu đề *', style: AppTextStyles.labelLarge),
+                        Text('Tiêu đề *', style: AppTextStyles.labelLarge.copyWith(color: colors.textPrimary)),
                         const SizedBox(height: 6),
                         TextField(decoration: const InputDecoration(hintText: 'Nhập tiêu đề công việc')),
                         const SizedBox(height: 16),
-                        Text('Mô tả', style: AppTextStyles.labelLarge),
+                        Text('Mô tả', style: AppTextStyles.labelLarge.copyWith(color: colors.textPrimary)),
                         const SizedBox(height: 6),
                         TextField(maxLines: 3, decoration: const InputDecoration(hintText: 'Mô tả chi tiết...')),
                         const SizedBox(height: 16),
-                        Text('Người thực hiện', style: AppTextStyles.labelLarge),
+                        Text('Người thực hiện', style: AppTextStyles.labelLarge.copyWith(color: colors.textPrimary)),
                         const SizedBox(height: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
-                          decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.borderLight)),
+                          decoration: BoxDecoration(color: colors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: colors.borderLight)),
                           child: DropdownButtonHideUnderline(child: DropdownButton<String>(
                             isExpanded: true, value: null, hint: const Text('Chọn người thực hiện'),
                             items: mockEmployeeList.take(8).map((e) => DropdownMenuItem(value: e.id, child: Text(e.name))).toList(),
@@ -806,11 +812,11 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
                           )),
                         ),
                         const SizedBox(height: 16),
-                        Text('Dự án', style: AppTextStyles.labelLarge),
+                        Text('Dự án', style: AppTextStyles.labelLarge.copyWith(color: colors.textPrimary)),
                         const SizedBox(height: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
-                          decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.borderLight)),
+                          decoration: BoxDecoration(color: colors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: colors.borderLight)),
                           child: DropdownButtonHideUnderline(child: DropdownButton<String>(
                             isExpanded: true, value: null, hint: const Text('Chọn dự án'),
                             items: mockProjectList.map((p) => DropdownMenuItem(value: p.id, child: Text(p.name))).toList(),
@@ -818,22 +824,22 @@ class _TaskWorkspaceScreenState extends State<TaskWorkspaceScreen> {
                           )),
                         ),
                         const SizedBox(height: 16),
-                        Text('Hạn hoàn thành', style: AppTextStyles.labelLarge),
+                        Text('Hạn hoàn thành', style: AppTextStyles.labelLarge.copyWith(color: colors.textPrimary)),
                         const SizedBox(height: 6),
                         GestureDetector(
                           onTap: () => showDatePicker(context: context, initialDate: DateTime.now().add(const Duration(days: 7)), firstDate: DateTime.now(), lastDate: DateTime(2027)),
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                            decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.borderLight)),
+                            decoration: BoxDecoration(color: colors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: colors.borderLight)),
                             child: Row(children: [
-                              const Icon(Icons.calendar_today_rounded, size: 18, color: AppColors.textTertiary),
+                              Icon(Icons.calendar_today_rounded, size: 18, color: colors.textTertiary),
                               const SizedBox(width: 10),
-                              Text('Chọn ngày', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiary)),
+                              Text('Chọn ngày', style: AppTextStyles.bodyMedium.copyWith(color: colors.textTertiary)),
                             ]),
                           ),
                         ),
                         const SizedBox(height: 16),
-                        Text('Độ ưu tiên', style: AppTextStyles.labelLarge),
+                        Text('Độ ưu tiên', style: AppTextStyles.labelLarge.copyWith(color: colors.textPrimary)),
                         const SizedBox(height: 8),
                         Wrap(spacing: 8, children: [
                           _priorityChip('Thấp', AppColors.priorityLow),

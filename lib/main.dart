@@ -249,12 +249,14 @@ class _MainShellState extends State<MainShell> {
   }
 
   /// Desktop Sidebar - 7 modules + logout
+  /// NOW: Fully theme-aware with dynamic accent colors
   Widget _buildDesktopSidebar() {
+    final colors = AppColors.of(context);
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
       curve: Curves.easeInOut,
       width: _sidebarCollapsed ? 72 : 260,
-      decoration: const BoxDecoration(color: AppColors.sidebarBg),
+      decoration: BoxDecoration(color: colors.sidebarBg),
       child: Column(
         children: [
           // Logo Header
@@ -295,7 +297,7 @@ class _MainShellState extends State<MainShell> {
                         Text(
                           'Enterprise Suite',
                           style: AppTextStyles.labelSmall.copyWith(
-                            color: AppColors.sidebarText,
+                            color: colors.sidebarText,
                             fontSize: 10,
                           ),
                         ),
@@ -309,7 +311,7 @@ class _MainShellState extends State<MainShell> {
                       padding: const EdgeInsets.all(4),
                       child: Icon(
                         Icons.menu_open_rounded,
-                        color: AppColors.sidebarText,
+                        color: colors.sidebarText,
                         size: 20,
                       ),
                     ),
@@ -332,7 +334,7 @@ class _MainShellState extends State<MainShell> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Divider(
-              color: AppColors.sidebarDivider.withValues(alpha: 0.5),
+              color: colors.sidebarDivider.withValues(alpha: 0.5),
               height: 1,
             ),
           ),
@@ -351,9 +353,9 @@ class _MainShellState extends State<MainShell> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.logout_rounded,
-                        color: AppColors.error,
+                        color: colors.error,
                         size: 20,
                       ),
                       if (!_sidebarCollapsed) ...[
@@ -362,7 +364,7 @@ class _MainShellState extends State<MainShell> {
                           child: Text(
                             'Đăng xuất',
                             style: AppTextStyles.titleSmall.copyWith(
-                              color: AppColors.error,
+                              color: colors.error,
                             ),
                           ),
                         ),
@@ -382,6 +384,7 @@ class _MainShellState extends State<MainShell> {
   Widget _buildSideNavItem(int index) {
     final item = _navItems[index];
     final isSelected = index == _selectedIndex;
+    final colors = AppColors.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: Material(
@@ -398,7 +401,7 @@ class _MainShellState extends State<MainShell> {
             ),
             decoration: BoxDecoration(
               color: isSelected
-                  ? AppColors.sidebarItemActive
+                  ? colors.sidebarItemActive
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(10),
             ),
@@ -406,7 +409,7 @@ class _MainShellState extends State<MainShell> {
               children: [
                 Icon(
                   isSelected ? item.activeIcon : item.icon,
-                  color: isSelected ? Colors.white : AppColors.sidebarText,
+                  color: isSelected ? Colors.white : colors.sidebarText,
                   size: 22,
                 ),
                 if (!_sidebarCollapsed) ...[
@@ -417,7 +420,7 @@ class _MainShellState extends State<MainShell> {
                       style: AppTextStyles.titleSmall.copyWith(
                         color: isSelected
                             ? Colors.white
-                            : AppColors.sidebarText,
+                            : colors.sidebarText,
                         fontWeight: isSelected
                             ? FontWeight.w600
                             : FontWeight.w400,
@@ -433,7 +436,7 @@ class _MainShellState extends State<MainShell> {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.error,
+                        color: colors.error,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
@@ -465,11 +468,12 @@ class _MainShellState extends State<MainShell> {
 
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final colors = AppColors.of(context);
 
     return Container(
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        border: Border(top: BorderSide(color: isDark ? const Color(0xFF30363D) : AppColors.divider)),
+        color: colors.surface,
+        border: Border(top: BorderSide(color: colors.divider)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
@@ -512,7 +516,8 @@ class _MainShellState extends State<MainShell> {
   ) {
     final theme = Theme.of(context);
     final primaryColor = theme.colorScheme.primary;
-    final unselected = theme.brightness == Brightness.dark ? const Color(0xFF6E7681) : AppColors.textTertiary;
+    final colors = AppColors.of(context);
+    final unselected = colors.textTertiary;
     return InkWell(
       onTap: () => setState(() => _selectedIndex = index),
       borderRadius: BorderRadius.circular(12),
@@ -537,7 +542,7 @@ class _MainShellState extends State<MainShell> {
                       decoration: BoxDecoration(
                         color: AppColors.error,
                         shape: BoxShape.circle,
-                        border: Border.all(color: theme.colorScheme.surface, width: 1.5),
+                        border: Border.all(color: colors.surface, width: 1.5),
                       ),
                       child: const Text('4', style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w700)),
                     ),
@@ -562,6 +567,8 @@ class _MainShellState extends State<MainShell> {
   Widget _buildMoreButton() {
     final isMoreSelected =
         _selectedIndex == 2 || _selectedIndex == 3 || _selectedIndex == 4 || _selectedIndex == 5 || _selectedIndex == 6;
+    final colors = AppColors.of(context);
+    final primaryColor = Theme.of(context).colorScheme.primary;
     return InkWell(
       onTap: () => _showMoreMenu(),
       borderRadius: BorderRadius.circular(12),
@@ -569,7 +576,7 @@ class _MainShellState extends State<MainShell> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isMoreSelected ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.12) : Colors.transparent,
+          color: isMoreSelected ? primaryColor.withValues(alpha: 0.12) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -578,17 +585,13 @@ class _MainShellState extends State<MainShell> {
             Icon(
               Icons.more_horiz_rounded,
               size: 22,
-              color: isMoreSelected
-                  ? Theme.of(context).colorScheme.primary
-                  : (Theme.of(context).brightness == Brightness.dark ? const Color(0xFF6E7681) : AppColors.textTertiary),
+              color: isMoreSelected ? primaryColor : colors.textTertiary,
             ),
             const SizedBox(height: 2),
             Text(
               'Thêm',
               style: AppTextStyles.labelSmall.copyWith(
-                color: isMoreSelected
-                    ? Theme.of(context).colorScheme.primary
-                    : (Theme.of(context).brightness == Brightness.dark ? const Color(0xFF6E7681) : AppColors.textTertiary),
+                color: isMoreSelected ? primaryColor : colors.textTertiary,
                 fontWeight: isMoreSelected ? FontWeight.w600 : FontWeight.w400,
                 fontSize: 10,
               ),
@@ -600,9 +603,10 @@ class _MainShellState extends State<MainShell> {
   }
 
   void _showMoreMenu() {
+    final colors = AppColors.of(context);
     showModalBottomSheet(
       context: context,
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: colors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -623,7 +627,7 @@ class _MainShellState extends State<MainShell> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: AppColors.divider,
+                      color: colors.divider,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -631,7 +635,10 @@ class _MainShellState extends State<MainShell> {
                 const SizedBox(height: 16),
                 Text(
                   'Quản trị',
-                  style: AppTextStyles.headlineSmall.copyWith(fontSize: 18),
+                  style: AppTextStyles.headlineSmall.copyWith(
+                    fontSize: 18,
+                    color: colors.textPrimary,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 _moreMenuItem(
@@ -664,13 +671,13 @@ class _MainShellState extends State<MainShell> {
                   'Cài đặt',
                   'Cấu hình hệ thống',
                 ),
-                const Divider(height: 20),
+                Divider(height: 20, color: colors.divider),
                 _moreMenuItem(
                   -1,
                   Icons.logout_rounded,
                   'Đăng xuất',
                   'Thoát khỏi hệ thống',
-                  color: AppColors.error,
+                  color: colors.error,
                   onTap: () {
                     Navigator.pop(context);
                     widget.onLogout();
@@ -693,11 +700,13 @@ class _MainShellState extends State<MainShell> {
     VoidCallback? onTap,
   }) {
     final isSelected = index == _selectedIndex;
+    final colors = AppColors.of(context);
+    final primaryColor = Theme.of(context).colorScheme.primary;
     return ListTile(
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: (color ?? AppColors.primary).withValues(alpha: 0.08),
+          color: (color ?? primaryColor).withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(
@@ -705,25 +714,25 @@ class _MainShellState extends State<MainShell> {
           size: 20,
           color:
               color ??
-              (isSelected ? AppColors.primary : AppColors.textSecondary),
+              (isSelected ? primaryColor : colors.textSecondary),
         ),
       ),
       title: Text(
         label,
         style: AppTextStyles.titleSmall.copyWith(
           fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-          color: color,
+          color: color ?? colors.textPrimary,
         ),
       ),
       subtitle: Text(
         sub,
-        style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
+        style: AppTextStyles.bodySmall.copyWith(fontSize: 11, color: colors.textSecondary),
       ),
       trailing: isSelected
-          ? const Icon(Icons.check_rounded, color: AppColors.primary, size: 20)
+          ? Icon(Icons.check_rounded, color: primaryColor, size: 20)
           : null,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      tileColor: isSelected ? AppColors.primarySurface : null,
+      tileColor: isSelected ? primaryColor.withValues(alpha: 0.08) : null,
       onTap:
           onTap ??
           () {

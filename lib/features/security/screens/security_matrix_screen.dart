@@ -39,7 +39,7 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
   // ──────────────────────────────────────────────────────────────────────────
   Widget _buildMobileLayout() {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.of(context).background,
       body: SafeArea(
         child: Column(
           children: [
@@ -223,9 +223,10 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
   }
 
   void _showMobileRolePicker() {
+    final colors = AppColors.of(context);
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: colors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -240,7 +241,7 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.divider,
+                  color: colors.divider,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -248,7 +249,7 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
             const SizedBox(height: 12),
             Text(
               'Chọn vai trò',
-              style: AppTextStyles.headlineSmall.copyWith(fontSize: 18),
+              style: AppTextStyles.headlineSmall.copyWith(fontSize: 18, color: colors.textPrimary),
             ),
             const SizedBox(height: 12),
             ...mockRoles.map((role) {
@@ -257,8 +258,8 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
                 leading: Icon(
                   Icons.admin_panel_settings_rounded,
                   color: isSelected
-                      ? AppColors.primary
-                      : AppColors.textSecondary,
+                      ? colors.primary
+                      : colors.textSecondary,
                   size: 20,
                 ),
                 title: Text(
@@ -266,22 +267,22 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
                   style: AppTextStyles.bodyMedium.copyWith(
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                     color: isSelected
-                        ? AppColors.primary
-                        : AppColors.textPrimary,
+                        ? colors.primary
+                        : colors.textPrimary,
                   ),
                 ),
                 subtitle: Text(
                   '${role.userCount} người dùng',
-                  style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
+                  style: AppTextStyles.bodySmall.copyWith(fontSize: 11, color: colors.textSecondary),
                 ),
                 trailing: isSelected
-                    ? const Icon(
+                    ? Icon(
                         Icons.check_rounded,
-                        color: AppColors.primary,
+                        color: colors.primary,
                         size: 20,
                       )
                     : null,
-                tileColor: isSelected ? AppColors.primarySurface : null,
+                tileColor: isSelected ? colors.primarySurface : null,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -301,8 +302,9 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
   // DESKTOP LAYOUT
   // ──────────────────────────────────────────────────────────────────────────
   Widget _buildDesktopLayout() {
+    final colors = AppColors.of(context);
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: colors.background,
       body: Row(
         children: [
           _buildDesktopRoleSidebar(),
@@ -333,11 +335,12 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
   }
 
   Widget _buildDesktopRoleSidebar() {
+    final colors = AppColors.of(context);
     return Container(
       width: 230,
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border(right: BorderSide(color: AppColors.divider)),
+        color: colors.surface,
+        border: Border(right: BorderSide(color: colors.divider)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -349,12 +352,12 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
                 Icon(
                   Icons.security_rounded,
                   size: 20,
-                  color: AppColors.primary,
+                  color: colors.primary,
                 ),
                 const SizedBox(width: 8),
                 Text(
                   'Vai trò',
-                  style: AppTextStyles.headlineSmall.copyWith(fontSize: 16),
+                  style: AppTextStyles.headlineSmall.copyWith(fontSize: 16, color: colors.textPrimary),
                 ),
               ],
             ),
@@ -375,11 +378,11 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
                       child: Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: isSelected ? AppColors.primarySurface : null,
+                          color: isSelected ? colors.primarySurface : null,
                           borderRadius: BorderRadius.circular(10),
                           border: isSelected
                               ? Border.all(
-                                  color: AppColors.primaryLight.withValues(
+                                  color: colors.primaryLight.withValues(
                                     alpha: 0.3,
                                   ),
                                 )
@@ -394,8 +397,8 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
                                   Icons.admin_panel_settings_rounded,
                                   size: 18,
                                   color: isSelected
-                                      ? AppColors.primary
-                                      : AppColors.textSecondary,
+                                    ? colors.primary
+                                    : colors.textSecondary,
                                 ),
                                 const SizedBox(width: 8),
                                 Expanded(
@@ -403,8 +406,8 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
                                     role.name,
                                     style: AppTextStyles.titleSmall.copyWith(
                                       color: isSelected
-                                          ? AppColors.primary
-                                          : AppColors.textPrimary,
+                                        ? colors.primary
+                                        : colors.textPrimary,
                                       fontWeight: isSelected
                                           ? FontWeight.w600
                                           : FontWeight.w500,
@@ -419,6 +422,7 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
                                 '${role.userCount} người dùng',
                                 style: AppTextStyles.labelSmall.copyWith(
                                   fontSize: 10,
+                                  color: colors.textSecondary,
                                 ),
                               ),
                             ),
@@ -437,6 +441,7 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
   }
 
   Widget _buildDesktopHeader() {
+    final colors = AppColors.of(context);
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
       child: Column(
@@ -450,12 +455,12 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
                   children: [
                     Text(
                       'Ma trận Phân quyền',
-                      style: AppTextStyles.headlineLarge.copyWith(fontSize: 22),
+                      style: AppTextStyles.headlineLarge.copyWith(fontSize: 22, color: colors.textPrimary),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       'Vai trò: ${_selectedRole.name} • ${_selectedRole.description}',
-                      style: AppTextStyles.bodySmall,
+                      style: AppTextStyles.bodySmall.copyWith(color: colors.textSecondary),
                     ),
                   ],
                 ),
@@ -475,6 +480,7 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
   }
 
   Widget _buildDesktopTabs() {
+    final colors = AppColors.of(context);
     final tabs = ['Ma trận Quyền', 'Nhật ký Hệ thống', 'Ủy quyền'];
     final icons = [
       Icons.grid_on_rounded,
@@ -483,7 +489,7 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
     ];
     return Container(
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppColors.divider)),
+        border: Border(bottom: BorderSide(color: colors.divider)),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
@@ -496,7 +502,7 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
               decoration: BoxDecoration(
                 border: Border(
                   bottom: BorderSide(
-                    color: isActive ? AppColors.primary : Colors.transparent,
+                    color: isActive ? colors.primary : Colors.transparent,
                     width: 2,
                   ),
                 ),
@@ -507,16 +513,16 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
                     icons[i],
                     size: 16,
                     color: isActive
-                        ? AppColors.primary
-                        : AppColors.textTertiary,
+                        ? colors.primary
+                        : colors.textTertiary,
                   ),
                   const SizedBox(width: 6),
                   Text(
                     tabs[i],
                     style: AppTextStyles.labelMedium.copyWith(
                       color: isActive
-                          ? AppColors.primary
-                          : AppColors.textTertiary,
+                          ? colors.primary
+                          : colors.textTertiary,
                       fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
                     ),
                   ),
@@ -530,11 +536,12 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
   }
 
   Widget _buildDelegationContent() {
+    final colors = AppColors.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: colors.borderLight),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -546,12 +553,12 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
                 Icon(
                   Icons.swap_horiz_rounded,
                   size: 18,
-                  color: AppColors.warning,
+                  color: colors.warning,
                 ),
                 const SizedBox(width: 8),
                 Text(
                   'Ủy quyền Tạm thời',
-                  style: AppTextStyles.titleLarge.copyWith(fontSize: 15),
+                  style: AppTextStyles.titleLarge.copyWith(fontSize: 15, color: colors.textPrimary),
                 ),
               ],
             ),
@@ -600,17 +607,18 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
     String period,
     bool isActive,
   ) {
+    final colors = AppColors.of(context);
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: isActive
-            ? AppColors.warningLight.withValues(alpha: 0.3)
-            : AppColors.surfaceVariant.withValues(alpha: 0.3),
+            ? colors.warningLight.withValues(alpha: 0.3)
+            : colors.surfaceVariant.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: isActive
-              ? AppColors.warning.withValues(alpha: 0.3)
-              : AppColors.borderLight,
+              ? colors.warning.withValues(alpha: 0.3)
+              : colors.borderLight,
         ),
       ),
       child: Column(
@@ -622,33 +630,31 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
             children: [
               Text(
                 from,
-                style: AppTextStyles.titleSmall.copyWith(fontSize: 13),
+                style: AppTextStyles.titleSmall.copyWith(fontSize: 13, color: colors.textPrimary),
               ),
               Icon(
                 Icons.arrow_forward_rounded,
                 size: 14,
-                color: AppColors.textTertiary,
+                color: colors.textTertiary,
               ),
               Text(
                 to,
                 style: AppTextStyles.titleSmall.copyWith(
                   fontSize: 13,
-                  color: AppColors.primary,
+                  color: colors.primary,
                 ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: (isActive ? AppColors.success : AppColors.textTertiary)
+                  color: (isActive ? colors.success : colors.textTertiary)
                       .withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
                   isActive ? 'Hoạt động' : 'Hết hạn',
                   style: AppTextStyles.labelSmall.copyWith(
-                    color: isActive
-                        ? AppColors.success
-                        : AppColors.textTertiary,
+                    color: isActive ? colors.success : colors.textTertiary,
                     fontWeight: FontWeight.w600,
                     fontSize: 10,
                   ),
@@ -659,11 +665,11 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
           const SizedBox(height: 6),
           Text(
             'Phạm vi: $scope',
-            style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
+            style: AppTextStyles.bodySmall.copyWith(fontSize: 11, color: colors.textSecondary),
           ),
           Text(
             'Thời gian: $period',
-            style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
+            style: AppTextStyles.bodySmall.copyWith(fontSize: 11, color: colors.textSecondary),
           ),
         ],
       ),
@@ -702,6 +708,7 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
 
   // ── CREATE ROLE SHEET ───────────────────────────────────────────────────
   void _showCreateRoleSheet(BuildContext context) {
+    final colors = AppColors.of(context);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -709,26 +716,26 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
       builder: (context) => Padding(
         padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
         child: Container(
-          decoration: const BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+          decoration: BoxDecoration(color: colors.surface, borderRadius: const BorderRadius.vertical(top: Radius.circular(20))),
           padding: const EdgeInsets.all(20),
           child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(2)))),
+            Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: colors.divider, borderRadius: BorderRadius.circular(2)))),
             const SizedBox(height: 12),
-            Text('Tạo vai trò mới', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18)),
+            Text('Tạo vai trò mới', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18, color: colors.textPrimary)),
             const SizedBox(height: 16),
-            Text('Tên vai trò *', style: AppTextStyles.labelLarge),
+            Text('Tên vai trò *', style: AppTextStyles.labelLarge.copyWith(color: colors.textPrimary)),
             const SizedBox(height: 6),
             const TextField(decoration: InputDecoration(hintText: 'VD: Trưởng nhóm')),
             const SizedBox(height: 14),
-            Text('Mô tả', style: AppTextStyles.labelLarge),
+            Text('Mô tả', style: AppTextStyles.labelLarge.copyWith(color: colors.textPrimary)),
             const SizedBox(height: 6),
             const TextField(maxLines: 2, decoration: InputDecoration(hintText: 'Mô tả quyền hạn của vai trò...')),
             const SizedBox(height: 14),
-            Text('Sao chép quyền từ', style: AppTextStyles.labelLarge),
+            Text('Sao chép quyền từ', style: AppTextStyles.labelLarge.copyWith(color: colors.textPrimary)),
             const SizedBox(height: 6),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.borderLight)),
+              decoration: BoxDecoration(color: colors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: colors.borderLight)),
               child: DropdownButtonHideUnderline(child: DropdownButton<String>(
                 isExpanded: true, value: null, hint: const Text('Không (tạo trắng)'),
                 items: mockRoles.map((r) => DropdownMenuItem(value: r.id, child: Text(r.name))).toList(),
@@ -741,7 +748,7 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
               const SizedBox(width: 12),
               Expanded(child: ElevatedButton(
                 onPressed: () { Navigator.pop(context); showHrmSuccessSnackbar(context, 'Đã tạo vai trò mới'); },
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.success, foregroundColor: Colors.white),
+                style: ElevatedButton.styleFrom(backgroundColor: colors.success, foregroundColor: Colors.white),
                 child: const Text('Tạo vai trò'),
               )),
             ]),
@@ -778,6 +785,7 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
 
   // ── CREATE DELEGATION SHEET ─────────────────────────────────────────────
   void _showCreateDelegationSheet(BuildContext context) {
+    final colors = AppColors.of(context);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -785,18 +793,18 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
       builder: (context) => Padding(
         padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
         child: Container(
-          decoration: const BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+          decoration: BoxDecoration(color: colors.surface, borderRadius: const BorderRadius.vertical(top: Radius.circular(20))),
           padding: const EdgeInsets.all(20),
           child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(2)))),
+            Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: colors.divider, borderRadius: BorderRadius.circular(2)))),
             const SizedBox(height: 12),
-            Text('Tạo ủy quyền mới', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18)),
+            Text('Tạo ủy quyền mới', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18, color: colors.textPrimary)),
             const SizedBox(height: 16),
-            Text('Người ủy quyền *', style: AppTextStyles.labelLarge),
+            Text('Người ủy quyền *', style: AppTextStyles.labelLarge.copyWith(color: colors.textPrimary)),
             const SizedBox(height: 6),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.borderLight)),
+              decoration: BoxDecoration(color: colors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: colors.borderLight)),
               child: DropdownButtonHideUnderline(child: DropdownButton<String>(
                 isExpanded: true, value: null, hint: const Text('Chọn người ủy quyền'),
                 items: mockEmployeeList.take(6).map((e) => DropdownMenuItem(value: e.id, child: Text(e.name))).toList(),
@@ -804,11 +812,11 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
               )),
             ),
             const SizedBox(height: 14),
-            Text('Người được ủy quyền *', style: AppTextStyles.labelLarge),
+            Text('Người được ủy quyền *', style: AppTextStyles.labelLarge.copyWith(color: colors.textPrimary)),
             const SizedBox(height: 6),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.borderLight)),
+              decoration: BoxDecoration(color: colors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: colors.borderLight)),
               child: DropdownButtonHideUnderline(child: DropdownButton<String>(
                 isExpanded: true, value: null, hint: const Text('Chọn người nhận'),
                 items: mockEmployeeList.take(6).map((e) => DropdownMenuItem(value: e.id, child: Text(e.name))).toList(),
@@ -816,22 +824,22 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
               )),
             ),
             const SizedBox(height: 14),
-            Text('Phạm vi ủy quyền', style: AppTextStyles.labelLarge),
+            Text('Phạm vi ủy quyền', style: AppTextStyles.labelLarge.copyWith(color: colors.textPrimary)),
             const SizedBox(height: 6),
             const TextField(decoration: InputDecoration(hintText: 'VD: Duyệt nghỉ phép, Duyệt OT')),
             const SizedBox(height: 14),
-            Text('Thời gian', style: AppTextStyles.labelLarge),
+            Text('Thời gian', style: AppTextStyles.labelLarge.copyWith(color: colors.textPrimary)),
             const SizedBox(height: 6),
             Row(children: [
               Expanded(child: GestureDetector(
                 onTap: () => showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime.now(), lastDate: DateTime(2027)),
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                  decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.borderLight)),
+                  decoration: BoxDecoration(color: colors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: colors.borderLight)),
                   child: Row(children: [
-                    const Icon(Icons.calendar_today_rounded, size: 16, color: AppColors.textTertiary),
+                    Icon(Icons.calendar_today_rounded, size: 16, color: colors.textTertiary),
                     const SizedBox(width: 8),
-                    Text('Từ ngày', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary)),
+                    Text('Từ ngày', style: AppTextStyles.bodySmall.copyWith(color: colors.textTertiary)),
                   ]),
                 ),
               )),
@@ -840,11 +848,11 @@ class _SecurityMatrixScreenState extends State<SecurityMatrixScreen>
                 onTap: () => showDatePicker(context: context, initialDate: DateTime.now().add(const Duration(days: 7)), firstDate: DateTime.now(), lastDate: DateTime(2027)),
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                  decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.borderLight)),
+                  decoration: BoxDecoration(color: colors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: colors.borderLight)),
                   child: Row(children: [
-                    const Icon(Icons.calendar_today_rounded, size: 16, color: AppColors.textTertiary),
+                    Icon(Icons.calendar_today_rounded, size: 16, color: colors.textTertiary),
                     const SizedBox(width: 8),
-                    Text('Đến ngày', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary)),
+                    Text('Đến ngày', style: AppTextStyles.bodySmall.copyWith(color: colors.textTertiary)),
                   ]),
                 ),
               )),

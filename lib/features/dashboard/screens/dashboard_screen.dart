@@ -10,7 +10,7 @@ import '../widgets/revenue_chart.dart';
 /// ============================================================================
 /// DASHBOARD SCREEN - Executive BI Dashboard
 /// Mobile-first: Cuộn dọc single-column trên mobile, 2-column trên desktop.
-/// UPDATED: StatefulWidget cho interactive filters.
+/// UPDATED: Fully theme-aware for dark mode + accent color support.
 /// ============================================================================
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -78,19 +78,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildHeader(BuildContext context, bool isMobile) {
+    final colors = AppColors.of(context);
     return Container(
       margin: EdgeInsets.fromLTRB(isMobile ? 16 : 24, 16, isMobile ? 16 : 24, 0),
       padding: EdgeInsets.fromLTRB(isMobile ? 18 : 24, 18, isMobile ? 18 : 24, 18),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF0F4C81), Color(0xFF1A5C9E)],
+        gradient: LinearGradient(
+          colors: [colors.primary, colors.primaryLight],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.18),
+            color: colors.primary.withValues(alpha: 0.18),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
@@ -208,7 +209,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   label: const Text('Xuất báo cáo'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
-                    foregroundColor: AppColors.primary,
+                    foregroundColor: colors.primary,
                     elevation: 0,
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   ),
@@ -225,16 +226,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
     required VoidCallback onTap,
     bool light = false,
   }) {
+    final colors = AppColors.of(context);
     return Stack(
       children: [
         Container(
           decoration: BoxDecoration(
-            color: light ? Colors.white.withValues(alpha: 0.15) : AppColors.surface,
+            color: light ? Colors.white.withValues(alpha: 0.15) : colors.surface,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: light
                   ? Colors.white.withValues(alpha: 0.14)
-                  : AppColors.borderLight,
+                  : colors.borderLight,
             ),
           ),
           child: IconButton(
@@ -242,7 +244,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             icon: Icon(
               icon,
               size: 20,
-              color: light ? Colors.white : AppColors.textSecondary,
+              color: light ? Colors.white : colors.textSecondary,
             ),
             padding: const EdgeInsets.all(8),
             constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
@@ -309,44 +311,46 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  /// Dashboard filter bottom sheet - NOW FULLY INTERACTIVE
+  /// Dashboard filter bottom sheet - FULLY THEME-AWARE
   void _showDashboardFilter(BuildContext context) {
-    // State managed outside StatefulBuilder so it persists
     String selectedTime = 'Hôm nay';
     String selectedDept = 'Tất cả';
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setModalState) {
+          final colors = AppColors.of(ctx);
           return Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(2)))),
+                Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: colors.divider, borderRadius: BorderRadius.circular(2)))),
                 const SizedBox(height: 12),
-                Text('Bộ lọc Dashboard', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18)),
+                Text('Bộ lọc Dashboard', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18, color: colors.textPrimary)),
                 const SizedBox(height: 16),
-                Text('Khoảng thời gian', style: AppTextStyles.labelLarge),
+                Text('Khoảng thời gian', style: AppTextStyles.labelLarge.copyWith(color: colors.textPrimary)),
                 const SizedBox(height: 8),
                 Wrap(spacing: 8, runSpacing: 8, children: [
                   for (final label in ['Hôm nay', 'Tuần này', 'Tháng này', 'Quý này', 'Tùy chỉnh'])
                     _interactiveFilterChip(
+                      ctx,
                       label,
                       label == selectedTime,
                       () => setModalState(() => selectedTime = label),
                     ),
                 ]),
                 const SizedBox(height: 16),
-                Text('Phòng ban', style: AppTextStyles.labelLarge),
+                Text('Phòng ban', style: AppTextStyles.labelLarge.copyWith(color: colors.textPrimary)),
                 const SizedBox(height: 8),
                 Wrap(spacing: 8, runSpacing: 8, children: [
                   for (final label in ['Tất cả', 'IT', 'HR', 'Sales', 'Design'])
                     _interactiveFilterChip(
+                      ctx,
                       label,
                       label == selectedDept,
                       () => setModalState(() => selectedDept = label),
@@ -378,24 +382,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  /// Interactive filter chip with tap feedback
-  Widget _interactiveFilterChip(String label, bool selected, VoidCallback onTap) {
+  /// Interactive filter chip with tap feedback - THEME-AWARE
+  Widget _interactiveFilterChip(BuildContext ctx, String label, bool selected, VoidCallback onTap) {
+    final colors = AppColors.of(ctx);
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
-        splashColor: AppColors.primary.withValues(alpha: 0.15),
+        splashColor: colors.primary.withValues(alpha: 0.15),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           decoration: BoxDecoration(
-            color: selected ? AppColors.primary : AppColors.surfaceVariant,
+            color: selected ? colors.primary : colors.surfaceVariant,
             borderRadius: BorderRadius.circular(20),
-            border: selected ? null : Border.all(color: AppColors.borderLight),
+            border: selected ? null : Border.all(color: colors.borderLight),
           ),
           child: Text(label, style: AppTextStyles.labelMedium.copyWith(
-            color: selected ? Colors.white : AppColors.textSecondary,
+            color: selected ? Colors.white : colors.textSecondary,
             fontWeight: selected ? FontWeight.w600 : FontWeight.w400, fontSize: 12,
           )),
         ),

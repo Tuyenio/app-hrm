@@ -295,8 +295,7 @@ class _DepartmentManagementScreenState
   }
 
   Widget _buildDepartmentCard(_DepartmentInfo dept, bool isMobile) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final colors = AppColors.of(context);
     final kpiColor = dept.kpiCompletion >= 0.8
         ? AppColors.success
         : dept.kpiCompletion >= 0.6 ? AppColors.warning : AppColors.error;
@@ -305,57 +304,58 @@ class _DepartmentManagementScreenState
       color: Colors.transparent,
       child: InkWell(
         onTap: () => _showDepartmentDetail(dept),
+        onLongPress: () => _showDeptActionMenu(context, dept),
         borderRadius: BorderRadius.circular(16),
         splashColor: dept.color.withValues(alpha: 0.1),
         child: Container(
           padding: EdgeInsets.all(isMobile ? 14 : 18),
           decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
+            color: colors.surface,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: isDark ? const Color(0xFF30363D) : AppColors.borderLight),
-            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.04), blurRadius: 8, offset: const Offset(0, 2))],
+            border: Border.all(color: colors.borderLight),
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Icon + Name
               Row(children: [
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(color: dept.color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
                   child: Icon(dept.icon, color: dept.color, size: 20),
                 ),
-                const SizedBox(width: 10),
-                Expanded(child: Text(dept.name, style: AppTextStyles.titleSmall.copyWith(fontWeight: FontWeight.w700, fontSize: isMobile ? 12 : 14), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                const SizedBox(width: 8),
+                Expanded(child: Text(dept.name, style: AppTextStyles.titleSmall.copyWith(fontWeight: FontWeight.w700, fontSize: isMobile ? 12 : 14, color: colors.textPrimary), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                GestureDetector(
+                  onTap: () => _showDeptActionMenu(context, dept),
+                  child: Icon(Icons.more_vert_rounded, size: 18, color: colors.textTertiary),
+                ),
               ]),
-              const SizedBox(height: 12),
-              // Manager
+              const SizedBox(height: 10),
               Row(children: [
                 UserAvatar(initials: dept.managerAvatar, size: 22),
                 const SizedBox(width: 6),
-                Expanded(child: Text(dept.managerName, style: AppTextStyles.bodySmall.copyWith(fontSize: 11), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                Expanded(child: Text(dept.managerName, style: AppTextStyles.bodySmall.copyWith(fontSize: 11, color: colors.textSecondary), maxLines: 1, overflow: TextOverflow.ellipsis)),
               ]),
-              const SizedBox(height: 10),
-              // Headcount
+              const SizedBox(height: 8),
               Row(children: [
-                Icon(Icons.group_rounded, size: 14, color: AppColors.textTertiary),
+                Icon(Icons.group_rounded, size: 14, color: colors.textTertiary),
                 const SizedBox(width: 4),
-                Text('${dept.headcount} nhân sự', style: AppTextStyles.labelSmall.copyWith(fontSize: 10, color: AppColors.textSecondary)),
+                Text('${dept.headcount} nhân sự', style: AppTextStyles.labelSmall.copyWith(fontSize: 10, color: colors.textSecondary)),
               ]),
               const Spacer(),
-              // KPI
               Row(children: [
-                Text('KPI', style: AppTextStyles.labelSmall.copyWith(fontSize: 10, color: AppColors.textTertiary)),
+                Text('KPI', style: AppTextStyles.labelSmall.copyWith(fontSize: 10, color: colors.textTertiary)),
                 const Spacer(),
                 Text('${(dept.kpiCompletion * 100).toInt()}%', style: AppTextStyles.labelSmall.copyWith(fontSize: 11, fontWeight: FontWeight.w700, color: kpiColor)),
               ]),
               const SizedBox(height: 6),
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
-                child: LinearProgressIndicator(value: dept.kpiCompletion, backgroundColor: AppColors.surfaceVariant, valueColor: AlwaysStoppedAnimation(kpiColor), minHeight: 6),
+                child: LinearProgressIndicator(value: dept.kpiCompletion, backgroundColor: colors.surfaceVariant, valueColor: AlwaysStoppedAnimation(kpiColor), minHeight: 6),
               ),
               const SizedBox(height: 4),
-              Text('${dept.tasksCompleted}/${dept.totalTasks} tasks', style: AppTextStyles.labelSmall.copyWith(fontSize: 9, color: AppColors.textTertiary)),
+              Text('${dept.tasksCompleted}/${dept.totalTasks} tasks', style: AppTextStyles.labelSmall.copyWith(fontSize: 9, color: colors.textTertiary)),
             ],
           ),
         ),
@@ -568,6 +568,122 @@ class _DepartmentManagementScreenState
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _showDeptActionMenu(BuildContext context, _DepartmentInfo dept) {
+    final colors = AppColors.of(context);
+    showModalBottomSheet(
+      context: context, backgroundColor: colors.surface,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) => SafeArea(child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: colors.divider, borderRadius: BorderRadius.circular(2)))),
+          const SizedBox(height: 12),
+          Row(children: [
+            Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: dept.color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)), child: Icon(dept.icon, color: dept.color, size: 22)),
+            const SizedBox(width: 12),
+            Expanded(child: Text(dept.name, style: AppTextStyles.headlineSmall.copyWith(fontSize: 16, color: colors.textPrimary))),
+          ]),
+          const SizedBox(height: 16),
+          ListTile(
+            onTap: () { Navigator.pop(ctx); _showDepartmentDetail(dept); },
+            leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: colors.primary.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(10)), child: Icon(Icons.visibility_rounded, color: colors.primary, size: 20)),
+            title: Text('Xem chi tiết', style: AppTextStyles.titleSmall.copyWith(color: colors.textPrimary)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+          ListTile(
+            onTap: () { Navigator.pop(ctx); _showEditDepartmentSheet(context, dept); },
+            leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AppColors.warning.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.edit_rounded, color: AppColors.warning, size: 20)),
+            title: Text('Sửa phòng ban', style: AppTextStyles.titleSmall.copyWith(color: colors.textPrimary)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+          ListTile(
+            onTap: () { Navigator.pop(ctx); _showDeleteDeptConfirmation(context, dept); },
+            leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AppColors.error.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.delete_rounded, color: AppColors.error, size: 20)),
+            title: Text('Xóa phòng ban', style: AppTextStyles.titleSmall.copyWith(color: AppColors.error)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        ]),
+      )),
+    );
+  }
+
+  void _showEditDepartmentSheet(BuildContext context, _DepartmentInfo dept) {
+    final colors = AppColors.of(context);
+    showModalBottomSheet(
+      context: context, isScrollControlled: true, backgroundColor: Colors.transparent,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+        child: Container(
+          decoration: BoxDecoration(color: colors.surface, borderRadius: const BorderRadius.vertical(top: Radius.circular(20))),
+          padding: const EdgeInsets.all(20),
+          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: colors.divider, borderRadius: BorderRadius.circular(2)))),
+            const SizedBox(height: 12),
+            Text('Sửa phòng ban', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18, color: colors.textPrimary)),
+            const SizedBox(height: 16),
+            Text('Tên phòng ban *', style: AppTextStyles.labelLarge.copyWith(color: colors.textPrimary)),
+            const SizedBox(height: 6),
+            TextField(controller: TextEditingController(text: dept.name)),
+            const SizedBox(height: 14),
+            Text('Trưởng phòng', style: AppTextStyles.labelLarge.copyWith(color: colors.textPrimary)),
+            const SizedBox(height: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(color: colors.surfaceVariant, borderRadius: BorderRadius.circular(8), border: Border.all(color: colors.borderLight)),
+              child: DropdownButtonHideUnderline(child: DropdownButton<String>(
+                isExpanded: true, value: null, hint: Text(dept.managerName), dropdownColor: colors.surface,
+                items: mockEmployeeList.take(6).map((e) => DropdownMenuItem(value: e.id, child: Text(e.name))).toList(),
+                onChanged: (_) {},
+              )),
+            ),
+            const SizedBox(height: 14),
+            Text('Ngân sách', style: AppTextStyles.labelLarge.copyWith(color: colors.textPrimary)),
+            const SizedBox(height: 6),
+            TextField(controller: TextEditingController(text: dept.budget)),
+            const SizedBox(height: 20),
+            Row(children: [
+              Expanded(child: OutlinedButton(onPressed: () => Navigator.pop(ctx), child: const Text('Hủy'))),
+              const SizedBox(width: 12),
+              Expanded(child: ElevatedButton(
+                onPressed: () { Navigator.pop(ctx); showHrmSuccessSnackbar(context, 'Đã cập nhật ${dept.name}'); },
+                child: const Text('Lưu thay đổi'),
+              )),
+            ]),
+          ]),
+        ),
+      ),
+    );
+  }
+
+  void _showDeleteDeptConfirmation(BuildContext context, _DepartmentInfo dept) {
+    final colors = AppColors.of(context);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: colors.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(children: [
+          Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AppColors.error.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.warning_rounded, color: AppColors.error, size: 22)),
+          const SizedBox(width: 12),
+          Expanded(child: Text('Xóa phòng ban', style: AppTextStyles.headlineSmall.copyWith(fontSize: 16, color: colors.textPrimary))),
+        ]),
+        content: Text('Bạn có chắc chắn muốn xóa "${dept.name}"?\nPhòng ban có ${dept.headcount} nhân viên.', style: AppTextStyles.bodyMedium.copyWith(color: colors.textSecondary)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('Hủy', style: TextStyle(color: colors.textSecondary))),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              setState(() => _departments.removeWhere((d) => d.name == dept.name));
+              showHrmSuccessSnackbar(context, 'Đã xóa ${dept.name}');
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error, foregroundColor: Colors.white),
+            child: const Text('Xóa'),
+          ),
+        ],
       ),
     );
   }
